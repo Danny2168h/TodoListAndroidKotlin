@@ -12,7 +12,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -30,17 +29,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.project.todolist.data.TodoItem
 import com.project.todolist.navigation.Screen
-import com.project.todolist.screens.main.MainScreenViewModel
-import com.project.todolist.testData.ScreenUiData
 import com.project.todolist.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.*
 
 @ExperimentalComposeUiApi
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ListDetailedScreen(navController: NavController, uiData: ScreenUiData, listID: Long?) {
-    val viewModel = viewModel(ListDetailedScreenViewModel::class.java)
+fun ListDetailedScreen(navController: NavController, listID: Long) {
+    val viewModel = viewModel(
+        ListDetailedScreenViewModel::class.java,
+        factory = ListDetailedScreenViewModel.ListDetailedScreenViewModelFactory(
+            listID,
+            navController = navController
+        )
+    )
     val state by viewModel.state.collectAsState()
 
     TodoListTheme {
@@ -53,8 +57,9 @@ fun ListDetailedScreen(navController: NavController, uiData: ScreenUiData, listI
             sheetElevation = 10.dp,
             sheetContent = {
                 AddItemUI(
-                    uiData = uiData,
-                    navController = navController
+                    OnTapSave = { viewModel.onTapSave(it) },
+                    scope = scope,
+                    scaffoldState = scaffoldState
                 )
             },
         ) {
@@ -79,10 +84,10 @@ fun ListDetailedScreen(navController: NavController, uiData: ScreenUiData, listI
                                 )
                             )
                     ) {
-                        BlueTop(clickMainMenu = { /*TODO*/ }, uiData = uiData)
+                        BlueTop(clickMainMenu = { /*TODO*/ }, count = state.count)
                     }
                     TodoListUI(
-                        entries = uiData.listOfTodo,
+                        entries = state.todoList,
                         onClickEntry = { navController.navigate(Screen.DetailedView.route + "/$it") })
                 }
 
@@ -175,7 +180,7 @@ fun TodoItemUI(entry: TodoItem, onClickEntry: (String) -> Unit) {
 
 
 @Composable
-fun TodoListUI(entries: SnapshotStateList<TodoItem>, onClickEntry: (String) -> Unit) {
+fun TodoListUI(entries: List<TodoItem>, onClickEntry: (String) -> Unit) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(30.dp, 0.dp, 0.dp, 0.dp))
@@ -205,8 +210,9 @@ fun TodoListUI(entries: SnapshotStateList<TodoItem>, onClickEntry: (String) -> U
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AddItemUI(
-    uiData: ScreenUiData,
-    navController: NavController
+    OnTapSave: (TodoItem) -> Unit,
+    scaffoldState: BottomSheetScaffoldState,
+    scope: CoroutineScope
 ) {
     var enabled by remember { mutableStateOf(false) }
     val textState = remember { mutableStateOf(TextFieldValue()) }
@@ -268,8 +274,12 @@ fun AddItemUI(
             Button(
                 onClick = {
                     if (enabled) {
-                        uiData.addItem(TodoItem(textState.value.text))
-                        navController.navigate(route = Screen.ListDetailedView.route)
+                        OnTapSave(TodoItem(textState.value.text))
+                        scope.launch {
+                            scaffoldState.bottomSheetState.apply {
+                                if (isCollapsed) expand() else collapse()
+                            }
+                        }
                     }
                 },
                 shape = RoundedCornerShape(20),
@@ -287,11 +297,11 @@ fun AddItemUI(
 }
 
 @Composable
-fun BlueTop(clickMainMenu: () -> Unit, uiData: ScreenUiData) {
+fun BlueTop(clickMainMenu: () -> Unit, count: Int) {
     Column {
         Spacer(modifier = Modifier.padding(0.dp, 30.dp))
         Text(
-            text = uiData.dateCurrent,
+            text = Calendar.getInstance().getTime().toString().substring(0, 10),
             fontSize = 18.sp,
             color = WhiteTextColor,
             modifier = Modifier.fillMaxWidth(),
@@ -314,7 +324,7 @@ fun BlueTop(clickMainMenu: () -> Unit, uiData: ScreenUiData) {
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "${uiData.listOfTodo.size} tasks",
+                    text = "$count tasks",
                     color = LightGrey,
                     fontSize = 15.sp,
                     fontFamily = dmSans

@@ -15,7 +15,7 @@ class TodoListRepository(private val todoListDao: TodoListDao) {
 //    }
 
     suspend fun updateTodoList(todoList: TodoList) {
-        todoListDao.addTodoList(todoList)
+        todoListDao.updateTodoList(todoList)
     }
 
 }

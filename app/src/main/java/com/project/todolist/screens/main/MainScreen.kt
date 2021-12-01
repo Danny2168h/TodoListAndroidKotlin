@@ -36,7 +36,7 @@ fun MainScreen(navController: NavController) {
                 .fillMaxSize()
         ) {
             items(state.todoLists) { todoList ->
-                Box(modifier = Modifier.clickable { navController.navigate(Screen.ListDetailedView.route + "${todoList.id}") }) {
+                Box(modifier = Modifier.clickable { navController.navigate(Screen.ListDetailedView.route + "/${todoList.id}") }) {
                     Text(text = todoList.title, color = Color.Black, fontSize = 20.sp)
                 }
             }

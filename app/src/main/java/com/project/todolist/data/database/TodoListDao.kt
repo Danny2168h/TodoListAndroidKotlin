@@ -12,9 +12,12 @@ interface TodoListDao {
 
     // suspend fun deleteTodoList(todolist: TodoList)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addTodoList(todolist: TodoList)
 
     @Update
     suspend fun updateTodoList(todolist: TodoList)
+
+    @Query("DELETE FROM todolist_table")
+    suspend fun deleteAllLists()
 }
