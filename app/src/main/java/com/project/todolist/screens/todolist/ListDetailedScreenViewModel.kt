@@ -30,11 +30,11 @@ class ListDetailedScreenViewModel(id: Long, navController: NavController) : View
         get() = _state
 
     init {
-        ViewStateUpdater()
-        dataBaseGet()
+        viewStateUpdater()
+        dataBaseGetter()
     }
 
-    private fun ViewStateUpdater() {
+    private fun viewStateUpdater() {
         viewModelScope.launch {
             combine(todoItems, count) { todoItems: List<TodoItem>, count: Int ->
                 ListDetailedScreenViewState(todoItems, count)
@@ -44,7 +44,7 @@ class ListDetailedScreenViewModel(id: Long, navController: NavController) : View
         }
     }
 
-    private fun dataBaseGet() {
+    private fun dataBaseGetter() {
         viewModelScope.launch {
             todoLists.collect { todoLists ->
                 val todoList: TodoList? = todoLists.find { it.id == selectedID.value }
