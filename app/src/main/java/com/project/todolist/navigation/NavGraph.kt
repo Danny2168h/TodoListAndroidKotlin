@@ -28,9 +28,20 @@ fun SetUpNavGraph(
             MainScreen(navController = navigationControl)
         }
         composable(
-            route = Screen.ListDetailedView.route
-        ) {
-            ListDetailedScreen(navController = navigationControl, uiData = state)
+            route = Screen.ListDetailedView.route,
+            arguments = listOf(
+                    navArgument("todo_list_id") {
+                        type = NavType.LongType
+                        defaultValue = 0
+                        nullable = true
+                    }
+            )
+        ) { entry ->
+            ListDetailedScreen(
+                navController = navigationControl,
+                uiData = state,
+                listID = entry.arguments?.getLong("todo_list_id")
+            )
         }
         composable(
             route = Screen.DetailedView.route + "/{todo_item}",

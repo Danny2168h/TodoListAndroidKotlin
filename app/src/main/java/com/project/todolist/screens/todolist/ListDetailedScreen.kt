@@ -26,9 +26,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.project.todolist.data.TodoItem
 import com.project.todolist.navigation.Screen
+import com.project.todolist.screens.main.MainScreenViewModel
 import com.project.todolist.testData.ScreenUiData
 import com.project.todolist.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
@@ -37,7 +39,10 @@ import kotlinx.coroutines.launch
 @ExperimentalComposeUiApi
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ListDetailedScreen(navController: NavController, uiData: ScreenUiData) {
+fun ListDetailedScreen(navController: NavController, uiData: ScreenUiData, listID: Long?) {
+    val viewModel = viewModel(ListDetailedScreenViewModel::class.java)
+    val state by viewModel.state.collectAsState()
+
     TodoListTheme {
         val scaffoldState = rememberBottomSheetScaffoldState()
         val scope = rememberCoroutineScope()
