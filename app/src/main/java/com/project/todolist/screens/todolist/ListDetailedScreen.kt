@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -27,8 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.project.todolist.R
 import com.project.todolist.data.TodoItem
-import com.project.todolist.navigation.Screen
 import com.project.todolist.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -46,7 +47,20 @@ fun ListDetailedScreen(navController: NavController, listID: Long) {
         )
     )
     val state by viewModel.state.collectAsState()
+    MainView(
+        state = state,
+        onClickEntry = {viewModel.onClickEntry(it)},
+        onTapSave = {viewModel.onTapSave(it)}
+    )
+}
 
+@ExperimentalComposeUiApi
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun MainView(
+    onTapSave: (TodoItem) -> Unit,
+    state: ListDetailedScreenViewModel.ListDetailedScreenViewState,
+    onClickEntry : (String) -> Unit) {
     TodoListTheme {
         val scaffoldState = rememberBottomSheetScaffoldState()
         val scope = rememberCoroutineScope()
@@ -57,7 +71,7 @@ fun ListDetailedScreen(navController: NavController, listID: Long) {
             sheetElevation = 10.dp,
             sheetContent = {
                 AddItemUI(
-                    OnTapSave = { viewModel.onTapSave(it) },
+                    OnTapSave = { onTapSave(it) },
                     scope = scope,
                     scaffoldState = scaffoldState
                 )
@@ -84,11 +98,13 @@ fun ListDetailedScreen(navController: NavController, listID: Long) {
                                 )
                             )
                     ) {
-                        BlueTop(clickMainMenu = { /*TODO*/ }, count = state.count)
+                        TopInfoArea(
+                            clickMainMenu = { /*TODO*/ },
+                            count = state.count)
                     }
                     TodoListUI(
                         entries = state.todoList,
-                        onClickEntry = { navController.navigate(Screen.DetailedView.route + "/$it") })
+                        onClickEntry = {onClickEntry(it)})
                 }
 
             }
@@ -98,7 +114,9 @@ fun ListDetailedScreen(navController: NavController, listID: Long) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun AddItemButton(scaffoldState: BottomSheetScaffoldState, scope: CoroutineScope) {
+fun AddItemButton(
+    scaffoldState: BottomSheetScaffoldState,
+    scope: CoroutineScope) {
     FloatingActionButton(
         onClick = {
             scope.launch {
@@ -128,13 +146,15 @@ fun AddItemButton(scaffoldState: BottomSheetScaffoldState, scope: CoroutineScope
                             )
                         )
                     ), contentAlignment = Alignment.Center
-            ) { Text(text = "+", color = WhiteTextColor, fontSize = 30.sp) }
+            ) { Text(text = stringResource(id = R.string.plus_sign), color = WhiteTextColor, fontSize = 30.sp) }
         }
     )
 }
 
 @Composable
-fun TodoItemUI(entry: TodoItem, onClickEntry: (String) -> Unit) {
+fun TodoItemUI(
+    entry: TodoItem,
+    onClickEntry: (String) -> Unit) {
     var checked by remember { mutableStateOf(entry.complete) }
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -142,9 +162,7 @@ fun TodoItemUI(entry: TodoItem, onClickEntry: (String) -> Unit) {
         modifier = Modifier
             .shadow(5.dp, RoundedCornerShape(20))
             .size(350.dp, 90.dp)
-            .background(
-                TodoItemBackGround
-            )
+            .background(TodoItemBackGround)
             .clickable { onClickEntry(entry.title) }
     ) {
         Spacer(modifier = Modifier.padding(10.dp))
@@ -169,7 +187,7 @@ fun TodoItemUI(entry: TodoItem, onClickEntry: (String) -> Unit) {
         )
         Spacer(modifier = Modifier.padding(5.dp))
         Text(
-            text = ">",
+            text = stringResource(id = R.string.go_right),
             color = BlackTextColor,
             fontSize = 20.sp,
             fontFamily = dmSans,
@@ -180,7 +198,9 @@ fun TodoItemUI(entry: TodoItem, onClickEntry: (String) -> Unit) {
 
 
 @Composable
-fun TodoListUI(entries: List<TodoItem>, onClickEntry: (String) -> Unit) {
+fun TodoListUI(
+    entries: List<TodoItem>,
+    onClickEntry: (String) -> Unit) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(30.dp, 0.dp, 0.dp, 0.dp))
@@ -191,7 +211,7 @@ fun TodoListUI(entries: List<TodoItem>, onClickEntry: (String) -> Unit) {
         Column {
             Spacer(modifier = Modifier.padding(0.dp, 10.dp))
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(15.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxSize()
             )
@@ -258,7 +278,7 @@ fun AddItemUI(
                 singleLine = true,
                 placeholder = {
                     Text(
-                        text = "What do you need to do?",
+                        text = stringResource(id = R.string.what_to_do),
                         color = WhiteTextColorFade,
                         textAlign = TextAlign.Center,
                         fontFamily = dmSans,
@@ -286,7 +306,7 @@ fun AddItemUI(
                 colors = ButtonDefaults.buttonColors(WhiteBackground),
                 content = {
                     Text(
-                        text = "Save",
+                        text = stringResource(id = R.string.save),
                         fontFamily = dmSans,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
@@ -297,7 +317,9 @@ fun AddItemUI(
 }
 
 @Composable
-fun BlueTop(clickMainMenu: () -> Unit, count: Int) {
+fun TopInfoArea(
+    clickMainMenu: () -> Unit,
+    count: Int) {
     Column {
         Spacer(modifier = Modifier.padding(0.dp, 30.dp))
         Text(
@@ -317,14 +339,14 @@ fun BlueTop(clickMainMenu: () -> Unit, count: Int) {
             Spacer(modifier = Modifier.padding(20.dp, 0.dp))
             Column(horizontalAlignment = Alignment.Start) {
                 Text(
-                    text = "Today",
+                    text = stringResource(id = R.string.today),
                     fontSize = 30.sp,
                     color = WhiteTextColor,
                     fontFamily = dmSans,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "$count tasks",
+                    text = "$count " + stringResource(id = R.string.tasks),
                     color = LightGrey,
                     fontSize = 15.sp,
                     fontFamily = dmSans
@@ -342,7 +364,7 @@ fun BlueTop(clickMainMenu: () -> Unit, count: Int) {
                     }
             ) {
                 Text(
-                    text = "Main Menu",
+                    text = stringResource(id = R.string.main_menu),
                     Modifier
                         .fillMaxWidth()
                         .padding(0.dp, 15.dp),

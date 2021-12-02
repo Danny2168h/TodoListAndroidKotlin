@@ -25,24 +25,7 @@ class MainScreenViewModel() : ViewModel() {
 
     init {
         createView()
-        //updateView()
     }
-
-//    private fun updateView() {
-//        viewModelScope.launch {
-//            todoListRepository.readAllData.collect { todoLists ->
-//                todoLists.find {
-//                    it.id == selectId.value
-//                }.also {
-//                    selectId.value = it?.id ?: -1
-//                    if (selectId.value != -1L) {
-//                        todoText.value = it?.todo ?: ""
-//                        todoTime.value = it?.time ?: ""
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     private fun createView() {
         viewModelScope.launch() {

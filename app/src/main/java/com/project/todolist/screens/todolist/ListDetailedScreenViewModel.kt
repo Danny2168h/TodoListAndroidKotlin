@@ -9,6 +9,7 @@ import com.project.todolist.Graph
 import com.project.todolist.data.TodoItem
 import com.project.todolist.data.TodoList
 import com.project.todolist.data.database.TodoListRepository
+import com.project.todolist.navigation.Screen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
@@ -23,6 +24,7 @@ class ListDetailedScreenViewModel(id: Long, navController: NavController) : View
     private val count = MutableStateFlow(-1)
     private val selectedID = MutableStateFlow(id)
     private val currentList = MutableStateFlow(TodoList())
+    private val navController = navController
 
 
     private val _state = MutableStateFlow(ListDetailedScreenViewState())
@@ -39,7 +41,9 @@ class ListDetailedScreenViewModel(id: Long, navController: NavController) : View
             combine(todoItems, count) { todoItems: List<TodoItem>, count: Int ->
                 ListDetailedScreenViewState(todoItems, count)
             }.collect {
+                println("viewStateUpdater")
                 _state.value = it
+                println("viewStateUpdater1")
             }
         }
     }
@@ -49,15 +53,24 @@ class ListDetailedScreenViewModel(id: Long, navController: NavController) : View
             todoLists.collect { todoLists ->
                 val todoList: TodoList? = todoLists.find { it.id == selectedID.value }
                 todoList?.let {
+                    println("dataBaseGetter")
                     currentList.value = it
+                    println("dataBaseGetter1")
                     todoItems.value = it.todoItems
+                    println("dataBaseGetter2")
                 }
             }
         }
     }
 
-    fun onTapSave(todoItem: TodoItem) = viewModelScope.launch {
-        todoListRepository.updateTodoList(currentList.value.copy(todoItems = currentList.value.todoItems + todoItem))
+    fun onTapSave(todoItem: TodoItem) {
+        viewModelScope.launch {
+            todoListRepository.updateTodoList(currentList.value.copy(todoItems = currentList.value.todoItems + todoItem))
+        }
+    }
+
+    fun onClickEntry(id : String) {
+        navController.navigate(Screen.DetailedView.route + "/$id")
     }
 
     data class ListDetailedScreenViewState(
@@ -71,7 +84,7 @@ class ListDetailedScreenViewModel(id: Long, navController: NavController) : View
         private val navController: NavController
     ) :
         ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(ListDetailedScreenViewModel::class.java)) {
                 return ListDetailedScreenViewModel(navController = navController, id = id) as T
             } else {
