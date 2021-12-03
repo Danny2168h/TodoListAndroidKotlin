@@ -18,9 +18,9 @@ class AddItemSheetTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     private var clicked = false
-    private lateinit var plusSign : SemanticsNodeInteraction
-    private lateinit var whatToDo : SemanticsNodeInteraction
-    private lateinit var saveButton : SemanticsNodeInteraction
+    private lateinit var plusSign: SemanticsNodeInteraction
+    private lateinit var whatToDo: SemanticsNodeInteraction
+    private lateinit var saveButton: SemanticsNodeInteraction
 
 
     @ExperimentalComposeUiApi
@@ -31,14 +31,17 @@ class AddItemSheetTest {
             ListDetailedScreenMain(
                 todoList = mutableListOf(),
                 count = 0,
-                onClickEntry = {/* Tested elsewhere */},
-                onTapSave = {clicked = true}
+                onClickEntry = {/* Tested elsewhere */ },
+                onTapSave = { clicked = true }
             )
         }
 
-        plusSign = composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.plus_sign))
-        whatToDo =  composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.what_to_do))
-        saveButton = composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.save))
+        plusSign =
+            composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.plus_sign))
+        whatToDo =
+            composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.what_to_do))
+        saveButton =
+            composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.save))
     }
 
     @ExperimentalComposeUiApi

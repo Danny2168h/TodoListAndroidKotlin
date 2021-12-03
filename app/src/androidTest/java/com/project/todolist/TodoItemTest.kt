@@ -21,7 +21,7 @@ class TodoItemTest {
     private val rightChevron = ">"
     private var buttonClicked = false
 
-    lateinit var titleItem : SemanticsNodeInteraction
+    lateinit var titleItem: SemanticsNodeInteraction
 
     @Before
     fun setup() {

@@ -2,29 +2,30 @@ package com.project.todolist.screens.todolist
 
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import com.project.todolist.Graph
 import com.project.todolist.data.TodoItem
 import com.project.todolist.data.TodoList
 import com.project.todolist.data.database.TodoListRepository
-import com.project.todolist.navigation.Screen
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
-class ListDetailedScreenViewModel(id: Long, navController: NavController) : ViewModel() {
-
+class ListDetailedScreenViewModel(
+    id: Long,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val todoListRepository: TodoListRepository = Graph.todoRepo
+) : ViewModel() {
+
     private val todoLists = todoListRepository.readAllData
     private val todoItems = MutableStateFlow(emptyList<TodoItem>())
     private val count = MutableStateFlow(-1)
     private val selectedID = MutableStateFlow(id)
     private val currentList = MutableStateFlow(TodoList())
-    private val navController = navController
 
 
     private val _state = MutableStateFlow(ListDetailedScreenViewState())
@@ -37,7 +38,8 @@ class ListDetailedScreenViewModel(id: Long, navController: NavController) : View
     }
 
     private fun viewStateUpdater() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
+            println("View state updaterOG")
             combine(todoItems, count) { todoItems: List<TodoItem>, count: Int ->
                 ListDetailedScreenViewState(todoItems, count)
             }.collect {
@@ -47,7 +49,8 @@ class ListDetailedScreenViewModel(id: Long, navController: NavController) : View
     }
 
     private fun dataBaseGetter() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
+            println("View state updater")
             todoLists.collect { todoLists ->
                 val todoList: TodoList? = todoLists.find { it.id == selectedID.value }
                 todoList?.let {
@@ -59,13 +62,13 @@ class ListDetailedScreenViewModel(id: Long, navController: NavController) : View
     }
 
     fun onTapSave(title: String) {
-        viewModelScope.launch {
-            todoListRepository.updateTodoList(currentList.value.copy(todoItems = currentList.value.todoItems + TodoItem(title)))
+        viewModelScope.launch(dispatcher) {
+            todoListRepository.updateTodoList(
+                currentList.value.copy(
+                    todoItems = currentList.value.todoItems + TodoItem(title)
+                )
+            )
         }
-    }
-
-    fun onClickEntry(id : String) {
-        navController.navigate(Screen.DetailedView.route + "/$id")
     }
 
     data class ListDetailedScreenViewState(
@@ -73,18 +76,4 @@ class ListDetailedScreenViewModel(id: Long, navController: NavController) : View
         val count: Int = -1
     )
 
-    @Suppress("UNCHECKED_CAST")
-    class ListDetailedScreenViewModelFactory(
-        private val id: Long,
-        private val navController: NavController
-    ) :
-        ViewModelProvider.Factory {
-         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(ListDetailedScreenViewModel::class.java)) {
-                return ListDetailedScreenViewModel(navController = navController, id = id) as T
-            } else {
-                throw IllegalArgumentException("unKnown view model class")
-            }
-        }
-    }
 }

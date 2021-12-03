@@ -6,7 +6,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.project.todolist.screens.entry.EntryDetailedScreen
 import com.project.todolist.screens.main.MainScreen
@@ -15,7 +14,7 @@ import com.project.todolist.screens.todolist.ListDetailedScreen
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SetUpNavGraph(navigationControl : NavHostController) {
+fun SetUpNavGraph(navigationControl: NavHostController) {
 
     NavHost(
         navController = navigationControl,
@@ -36,7 +35,7 @@ fun SetUpNavGraph(navigationControl : NavHostController) {
             )
         ) { entry ->
             ListDetailedScreen(
-                navController = navigationControl,
+                onClickEntry = { navigationControl.navigate(Screen.DetailedView.route + "/$it") },
                 listID = entry.arguments?.getLong("id") ?: 0
             )
         }
