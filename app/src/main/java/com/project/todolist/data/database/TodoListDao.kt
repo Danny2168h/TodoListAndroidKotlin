@@ -10,14 +10,18 @@ interface TodoListDao {
     @Query("SELECT * FROM todolist_table ORDER BY id ASC")
     fun readAllData(): Flow<List<TodoList>>
 
-    // suspend fun deleteTodoList(todolist: TodoList)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addTodoList(todolist: TodoList)
 
     @Update
     suspend fun updateTodoList(todolist: TodoList)
 
+    @Query("SELECT * FROM todolist_table WHERE id=:id")
+    fun getListWithID(id: Long): TodoList
+
     @Query("DELETE FROM todolist_table")
     suspend fun deleteAllLists()
+
+    @Delete
+    suspend fun deleteTodoList(todolist: TodoList)
 }

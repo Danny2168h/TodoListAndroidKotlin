@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Todo List</string>
+    <string name="plus_sign">+</string>
+    <string name="main_menu">Main Menu</string>
+    <string name="today">Today</string>
+    <string name="tasks">tasks</string>
+    <string name="save">Save</string>
+    <string name="what_to_do">What do you need to do?</string>
+    <string name="go_right">></string>
 </resources>

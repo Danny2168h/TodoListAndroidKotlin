@@ -10,12 +10,16 @@ class TodoListRepository(private val todoListDao: TodoListDao) {
         todoListDao.addTodoList(todoList)
     }
 
-//    suspend fun deleteTodoList(todoList : TodoList) {
-//        todoListDao.deleteTodoList(todoList)
-//    }
+    suspend fun deleteTodoList(todoList: TodoList) {
+        todoListDao.deleteTodoList(todoList)
+    }
 
     suspend fun updateTodoList(todoList: TodoList) {
         todoListDao.updateTodoList(todoList)
+    }
+
+    fun getListWithID(id: Long): TodoList {
+        return todoListDao.getListWithID(id)
     }
 
 }

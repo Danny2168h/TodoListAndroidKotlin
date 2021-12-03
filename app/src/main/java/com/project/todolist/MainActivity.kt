@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.navigation.compose.rememberNavController
 import com.project.todolist.navigation.SetUpNavGraph
 
 class MainActivity : ComponentActivity() {
@@ -14,7 +15,8 @@ class MainActivity : ComponentActivity() {
         }
         Graph.provide(this)
         setContent {
-            SetUpNavGraph()
+            val navigationControl = rememberNavController()
+            SetUpNavGraph(navigationControl)
         }
     }
 }
