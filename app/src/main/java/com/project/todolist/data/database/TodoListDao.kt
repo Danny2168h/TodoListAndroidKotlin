@@ -16,6 +16,9 @@ interface TodoListDao {
     @Update
     suspend fun updateTodoList(todolist: TodoList)
 
+    @Query("SELECT * FROM todolist_table WHERE id=:id")
+    fun getListWithID(id: Long): TodoList
+
     @Query("DELETE FROM todolist_table")
     suspend fun deleteAllLists()
 

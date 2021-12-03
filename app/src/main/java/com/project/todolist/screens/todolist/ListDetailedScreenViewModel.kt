@@ -41,9 +41,7 @@ class ListDetailedScreenViewModel(id: Long, navController: NavController) : View
             combine(todoItems, count) { todoItems: List<TodoItem>, count: Int ->
                 ListDetailedScreenViewState(todoItems, count)
             }.collect {
-                println("viewStateUpdater")
                 _state.value = it
-                println("viewStateUpdater1")
             }
         }
     }
@@ -53,19 +51,16 @@ class ListDetailedScreenViewModel(id: Long, navController: NavController) : View
             todoLists.collect { todoLists ->
                 val todoList: TodoList? = todoLists.find { it.id == selectedID.value }
                 todoList?.let {
-                    println("dataBaseGetter")
                     currentList.value = it
-                    println("dataBaseGetter1")
                     todoItems.value = it.todoItems
-                    println("dataBaseGetter2")
                 }
             }
         }
     }
 
-    fun onTapSave(todoItem: TodoItem) {
+    fun onTapSave(title: String) {
         viewModelScope.launch {
-            todoListRepository.updateTodoList(currentList.value.copy(todoItems = currentList.value.todoItems + todoItem))
+            todoListRepository.updateTodoList(currentList.value.copy(todoItems = currentList.value.todoItems + TodoItem(title)))
         }
     }
 

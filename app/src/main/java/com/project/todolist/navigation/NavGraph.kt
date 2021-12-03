@@ -2,6 +2,7 @@ package com.project.todolist.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,8 +15,7 @@ import com.project.todolist.screens.todolist.ListDetailedScreen
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SetUpNavGraph() {
-    val navigationControl = rememberNavController()
+fun SetUpNavGraph(navigationControl : NavHostController) {
 
     NavHost(
         navController = navigationControl,

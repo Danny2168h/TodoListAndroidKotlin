@@ -18,4 +18,8 @@ class TodoListRepository(private val todoListDao: TodoListDao) {
         todoListDao.updateTodoList(todoList)
     }
 
+    suspend fun getListWithID(id: Long) : TodoList {
+        return todoListDao.getListWithID(id)
+    }
+
 }

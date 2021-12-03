@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.project.todolist.R
 import com.project.todolist.data.TodoItem
+import com.project.todolist.data.TodoList
 import com.project.todolist.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -39,6 +40,7 @@ import java.util.*
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ListDetailedScreen(navController: NavController, listID: Long) {
+
     val viewModel = viewModel(
         ListDetailedScreenViewModel::class.java,
         factory = ListDetailedScreenViewModel.ListDetailedScreenViewModelFactory(
@@ -46,9 +48,13 @@ fun ListDetailedScreen(navController: NavController, listID: Long) {
             navController = navController
         )
     )
+
+   // val viewModel = ListDetailedScreenViewModel(listID, navController = navController)
+
     val state by viewModel.state.collectAsState()
-    MainView(
-        state = state,
+    ListDetailedScreenMain(
+        todoList = state.todoList,
+        count = state.count,
         onClickEntry = {viewModel.onClickEntry(it)},
         onTapSave = {viewModel.onTapSave(it)}
     )
@@ -57,9 +63,10 @@ fun ListDetailedScreen(navController: NavController, listID: Long) {
 @ExperimentalComposeUiApi
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MainView(
-    onTapSave: (TodoItem) -> Unit,
-    state: ListDetailedScreenViewModel.ListDetailedScreenViewState,
+fun ListDetailedScreenMain(
+    onTapSave : (String) -> Unit,
+    todoList : List<TodoItem>,
+    count : Int,
     onClickEntry : (String) -> Unit) {
     TodoListTheme {
         val scaffoldState = rememberBottomSheetScaffoldState()
@@ -100,10 +107,10 @@ fun MainView(
                     ) {
                         TopInfoArea(
                             clickMainMenu = { /*TODO*/ },
-                            count = state.count)
+                            count = count)
                     }
                     TodoListUI(
-                        entries = state.todoList,
+                        entries = todoList,
                         onClickEntry = {onClickEntry(it)})
                 }
 
@@ -230,7 +237,7 @@ fun TodoListUI(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AddItemUI(
-    OnTapSave: (TodoItem) -> Unit,
+    OnTapSave: (String) -> Unit,
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope
 ) {
@@ -293,15 +300,15 @@ fun AddItemUI(
             Spacer(modifier = Modifier.padding(0.dp, 15.dp))
             Button(
                 onClick = {
-                    if (enabled) {
-                        OnTapSave(TodoItem(textState.value.text))
+                        OnTapSave(textState.value.text)
                         scope.launch {
                             scaffoldState.bottomSheetState.apply {
                                 if (isCollapsed) expand() else collapse()
                             }
                         }
-                    }
+
                 },
+                enabled = enabled,
                 shape = RoundedCornerShape(20),
                 colors = ButtonDefaults.buttonColors(WhiteBackground),
                 content = {
