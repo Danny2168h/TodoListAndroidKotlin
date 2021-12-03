@@ -39,7 +39,6 @@ class ListDetailedScreenViewModel(
 
     private fun viewStateUpdater() {
         viewModelScope.launch(dispatcher) {
-            println("View state updaterOG")
             combine(todoItems, count) { todoItems: List<TodoItem>, count: Int ->
                 ListDetailedScreenViewState(todoItems, count)
             }.collect {
@@ -50,7 +49,6 @@ class ListDetailedScreenViewModel(
 
     private fun dataBaseGetter() {
         viewModelScope.launch(dispatcher) {
-            println("View state updater")
             todoLists.collect { todoLists ->
                 val todoList: TodoList? = todoLists.find { it.id == selectedID.value }
                 todoList?.let {
