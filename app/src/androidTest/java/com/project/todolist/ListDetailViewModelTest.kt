@@ -72,7 +72,6 @@ class ListDetailViewModelTest {
                 todoItems = todoList.todoItems + TodoItem(itemTitle)
             )
         )
-        //viewModel.onTapSave(itemTitle)
         viewModel.state.test {
             assertEquals(
                 ListDetailedScreenViewState(
