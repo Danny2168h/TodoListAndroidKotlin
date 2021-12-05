@@ -3,6 +3,7 @@ package com.project.todolist.data.database
 import androidx.room.*
 import com.project.todolist.data.TodoList
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 @Dao
 interface TodoListDao {
@@ -10,7 +11,7 @@ interface TodoListDao {
     @Query("SELECT * FROM todolist_table ORDER BY id ASC")
     fun readAllData(): Flow<List<TodoList>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addTodoList(todolist: TodoList)
 
     @Update

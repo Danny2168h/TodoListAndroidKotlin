@@ -44,5 +44,11 @@ fun MainScreen(navController: NavController) {
     }
 }
 
+@Composable
+fun MainScreenMain() {
+
+}
+
+
 
 
