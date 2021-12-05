@@ -3,10 +3,12 @@ package com.project.todolist.screens.todolist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.project.todolist.Graph
 import com.project.todolist.data.TodoItem
 import com.project.todolist.data.TodoList
 import com.project.todolist.data.database.TodoListRepository
+import com.project.todolist.navigation.Screen
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +18,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class ListDetailedScreenViewModel(
-    id: Long,
+    private val id: Long,
+    private val navController: NavHostController,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val todoListRepository: TodoListRepository = Graph.todoRepo
 ) : ViewModel() {
@@ -67,6 +70,10 @@ class ListDetailedScreenViewModel(
                 )
             )
         }
+    }
+
+    fun onTapEntry(it: String) {
+        navController.navigate(Screen.DetailedView.route + "/$it")
     }
 
     data class ListDetailedScreenViewState(

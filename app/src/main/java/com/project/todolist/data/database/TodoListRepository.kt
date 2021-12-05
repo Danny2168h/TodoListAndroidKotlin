@@ -2,7 +2,7 @@ package com.project.todolist.data.database
 
 import com.project.todolist.data.TodoList
 
-class TodoListRepository(private val todoListDao: TodoListDao) {
+class TodoListRepository(private val todoListDao : TodoListDao){
 
     val readAllData = todoListDao.readAllData()
 

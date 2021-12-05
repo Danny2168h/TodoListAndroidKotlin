@@ -35,8 +35,8 @@ fun SetUpNavGraph(navigationControl: NavHostController) {
             )
         ) { entry ->
             ListDetailedScreen(
-                onClickEntry = { navigationControl.navigate(Screen.DetailedView.route + "/$it") },
-                listID = entry.arguments?.getLong("id") ?: 0
+                listID = entry.arguments?.getLong("id") ?: 0,
+                navController = navigationControl
             )
         }
         composable(
