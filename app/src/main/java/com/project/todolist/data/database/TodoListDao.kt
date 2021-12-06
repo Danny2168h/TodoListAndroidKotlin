@@ -3,7 +3,6 @@ package com.project.todolist.data.database
 import androidx.room.*
 import com.project.todolist.data.TodoList
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 
 @Dao
 interface TodoListDao {
@@ -23,6 +22,6 @@ interface TodoListDao {
     @Query("DELETE FROM todolist_table")
     suspend fun deleteAllLists()
 
-    @Delete
-    suspend fun deleteTodoList(todolist: TodoList)
+    @Query("DELETE FROM todolist_table WHERE id=:id")
+    suspend fun deleteTodoList(id: Long)
 }

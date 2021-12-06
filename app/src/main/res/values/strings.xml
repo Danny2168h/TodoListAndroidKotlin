@@ -4,7 +4,11 @@
     <string name="main_menu">Main Menu</string>
     <string name="today">Today</string>
     <string name="tasks">tasks</string>
-    <string name="save">Save</string>
+    <string name="save">SAVE</string>
     <string name="what_to_do">What do you need to do?</string>
     <string name="go_right">></string>
+    <string name="todo_title">T O D O</string>
+    <string name="list">L I S T</string>
+    <string name="create">Create</string>
+    <string name="todo_list_title">Your Todo List Title</string>
 </resources>

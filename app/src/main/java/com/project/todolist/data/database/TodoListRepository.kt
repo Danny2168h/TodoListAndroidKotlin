@@ -2,7 +2,7 @@ package com.project.todolist.data.database
 
 import com.project.todolist.data.TodoList
 
-class TodoListRepository(private val todoListDao : TodoListDao){
+class TodoListRepository(private val todoListDao: TodoListDao) {
 
     val readAllData = todoListDao.readAllData()
 
@@ -10,8 +10,8 @@ class TodoListRepository(private val todoListDao : TodoListDao){
         todoListDao.addTodoList(todoList)
     }
 
-    suspend fun deleteTodoList(todoList: TodoList) {
-        todoListDao.deleteTodoList(todoList)
+    suspend fun deleteTodoList(id: Long) {
+        todoListDao.deleteTodoList(id)
     }
 
     suspend fun updateTodoList(todoList: TodoList) {

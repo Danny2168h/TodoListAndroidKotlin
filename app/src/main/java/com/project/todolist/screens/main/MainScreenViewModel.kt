@@ -2,17 +2,19 @@ package com.project.todolist.screens.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.project.todolist.Graph
 import com.project.todolist.data.TodoItem
 import com.project.todolist.data.TodoList
 import com.project.todolist.data.database.TodoListRepository
+import com.project.todolist.navigation.Screen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
-class MainScreenViewModel() : ViewModel() {
+class MainScreenViewModel(private val navController: NavController) : ViewModel() {
 
     private val todoListRepository: TodoListRepository = Graph.todoRepo
     private val todoLists = todoListRepository.readAllData
@@ -44,6 +46,22 @@ class MainScreenViewModel() : ViewModel() {
                     "First List", listOf(TodoItem("Walk dog"), TodoItem("Add Persistence"))
                 )
             )
+        }
+    }
+
+    fun onTapEntry(id: Long) {
+        navController.navigate(Screen.ListDetailedView.route + "/$id")
+    }
+
+    fun onTapSave(title: String) {
+        viewModelScope.launch {
+            todoListRepository.addTodoList(TodoList(title))
+        }
+    }
+
+    fun onTapDelete(id: Long) {
+        viewModelScope.launch {
+            todoListRepository.deleteTodoList(id)
         }
     }
 

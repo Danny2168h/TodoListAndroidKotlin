@@ -1,5 +1,6 @@
 package com.project.todolist.navigation
 
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavHostController
@@ -12,7 +13,8 @@ import com.project.todolist.screens.main.MainScreen
 import com.project.todolist.screens.todolist.ListDetailedScreen
 
 
-@OptIn(ExperimentalComposeUiApi::class)
+@ExperimentalComposeUiApi
+@ExperimentalMaterialApi
 @Composable
 fun SetUpNavGraph(navigationControl: NavHostController) {
 

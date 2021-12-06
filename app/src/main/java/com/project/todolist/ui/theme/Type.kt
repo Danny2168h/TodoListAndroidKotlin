@@ -19,6 +19,17 @@ val inter = FontFamily(
     Font(R.font.inter)
 )
 
+val openSans = FontFamily(
+    Font(R.font.opensans_bold)
+)
+
+val montserrat = FontFamily(
+    Font(R.font.mont_light, weight = FontWeight.Light),
+    Font(R.font.mont_medium, weight = FontWeight.Normal),
+    Font(R.font.mont_semibold, weight = FontWeight.SemiBold),
+    Font(R.font.mont_extrabold, weight = FontWeight.ExtraBold)
+)
+
 
 // Set of Material typography styles to start with
 val Typography = Typography(
@@ -45,6 +56,4 @@ val Typography = Typography(
         fontWeight = FontWeight.Light,
         fontSize = 16.sp
     ),
-
-
-    )
+)
