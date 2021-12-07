@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Todo List</string>
     <string name="plus_sign">+</string>
+    <string name="arrow_right">Arrow Right</string>
     <string name="main_menu">Main Menu</string>
     <string name="today">Today</string>
     <string name="tasks">tasks</string>
@@ -11,4 +12,8 @@
     <string name="list">L I S T</string>
     <string name="create">Create</string>
     <string name="todo_list_title">Your Todo List Title</string>
+    <string name="close_icon">close icon</string>
+    <string name="individual_list">individual list</string>
+    <string name="pair_rows">pair rows</string>
+    <string name="add_icon">add icon</string>
 </resources>

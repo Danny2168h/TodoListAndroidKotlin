@@ -20,11 +20,12 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -62,7 +63,7 @@ fun MainScreenMain(
     onTapSave: (String) -> Unit,
     onClickDelete: (Long) -> Unit
 ) {
-    TodoListTheme() {
+    TodoListTheme {
         val scaffoldState = rememberBottomSheetScaffoldState()
         val scope = rememberCoroutineScope()
         BottomSheetScaffold(
@@ -96,7 +97,7 @@ fun MainScreenMain(
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier.matchParentSize()
                     )
-                    Column() {
+                    Column {
                         TitleArea()
                         TodoListSelection(
                             todoLists = todoLists,
@@ -155,7 +156,7 @@ fun AddListUI(
                 placeholder = {
                     Text(
                         text = stringResource(id = R.string.todo_list_title),
-                        color = WhiteTextColorFade,
+                        color = WhiteTextColor,
                         textAlign = TextAlign.Center,
                         fontFamily = dmSans,
                         fontWeight = FontWeight.Bold
@@ -217,9 +218,11 @@ fun TodoListSelection(
     onClickDelete: (Long) -> Unit
 ) {
     val pairedLists = separateInto2s(todoLists)
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight()) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ) {
         Column {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(35.dp),
@@ -243,7 +246,11 @@ fun TodoListPairRow(
     onClickEntry: (Long) -> Unit,
     onClickDelete: (Long) -> Unit
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
+    val pairRows = stringResource(R.string.pair_rows)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start,
+        modifier = Modifier.semantics { testTag = pairRows }) {
         TodoListIndividual(
             todoList = pairTodoList.first,
             onClickEntry = { onClickEntry(it) },
@@ -264,11 +271,14 @@ fun TodoListIndividual(
     onClickEntry: (Long) -> Unit,
     onClickDelete: (Long) -> Unit
 ) {
+    val closeIcon = stringResource(R.string.close_icon)
+    val individualList = stringResource(R.string.individual_list)
     Box(modifier = Modifier
-        .shadow(5.dp, RoundedCornerShape(20))
+        .shadow(2.dp, RoundedCornerShape(20))
         .size(160.dp, 180.dp)
         .clickable { onClickEntry(todoList.id) }
-        .background(Color.White)) {
+        .background(WhiteTextColor)
+        .semantics { testTag = individualList }) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
@@ -282,6 +292,7 @@ fun TodoListIndividual(
                     modifier = Modifier
                         .size(22.dp)
                         .clickable { onClickDelete(todoList.id) }
+                        .semantics { testTag = closeIcon }
                 )
                 Spacer(modifier = Modifier.padding(horizontal = 5.dp))
             }
@@ -308,23 +319,29 @@ fun AddListButton(
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope
 ) {
+    val addIcon = stringResource(R.string.add_icon)
     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center)
     {
-        Box(modifier = Modifier
-            .shadow(20.dp, RoundedCornerShape(20.dp, 20.dp, 0.dp, 0.dp))
-            .background(BlackAddList)
-            .width(120.dp)
-            .height(40.dp)
-            .clickable {
-                scope.launch {
-                    scaffoldState.bottomSheetState.apply {
-                        if (isCollapsed) expand() else collapse()
+        Box(
+            modifier = Modifier
+                .shadow(20.dp, RoundedCornerShape(20.dp, 20.dp, 0.dp, 0.dp))
+                .background(BlackAddList)
+                .width(120.dp)
+                .height(40.dp)
+                .clickable {
+                    scope.launch {
+                        scaffoldState.bottomSheetState.apply {
+                            if (isCollapsed) expand() else collapse()
+                        }
                     }
-                }
-            }, contentAlignment = Alignment.Center
+                }, contentAlignment = Alignment.Center
         ) {
             Row {
-                Icon(Icons.Rounded.Add, contentDescription = null, tint = WhiteTextColor)
+                Icon(
+                    Icons.Rounded.Add,
+                    contentDescription = null,
+                    tint = WhiteTextColor,
+                    modifier = Modifier.semantics { testTag = addIcon })
                 PaddingValues(10.dp, 0.dp)
                 Text(
                     text = stringResource(id = R.string.list),

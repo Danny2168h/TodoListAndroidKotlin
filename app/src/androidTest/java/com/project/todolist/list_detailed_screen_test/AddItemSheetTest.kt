@@ -1,9 +1,11 @@
-package com.project.todolist
+package com.project.todolist.list_detailed_screen_test
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.project.todolist.MainActivity
+import com.project.todolist.R
 import com.project.todolist.screens.todolist.ListDetailedScreenMain
 import org.junit.Before
 import org.junit.Rule
