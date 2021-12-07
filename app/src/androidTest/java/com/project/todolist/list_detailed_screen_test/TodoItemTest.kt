@@ -1,8 +1,10 @@
-package com.project.todolist
+package com.project.todolist.list_detailed_screen_test
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.project.todolist.MainActivity
+import com.project.todolist.R
 import com.project.todolist.data.TodoItem
 import com.project.todolist.screens.todolist.TodoItemUI
 import junit.framework.Assert.assertTrue
@@ -18,9 +20,9 @@ class TodoItemTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     private val title = "Test Item String"
-    private val rightChevron = ">"
     private var buttonClicked = false
 
+    lateinit var rightArrow: SemanticsNodeInteraction
     lateinit var titleItem: SemanticsNodeInteraction
 
     @Before
@@ -31,6 +33,10 @@ class TodoItemTest {
                 onClickEntry = { buttonClicked = true }, entry = TodoItem(title)
             )
         }
+        rightArrow = composeTestRule.onNodeWithTag(
+            composeTestRule.activity.getString(R.string.arrow_right),
+            useUnmergedTree = true
+        )
         titleItem = composeTestRule.onNodeWithText(title)
     }
 
@@ -48,7 +54,7 @@ class TodoItemTest {
     }
 
     @Test
-    fun verifyTodoItemContainsRightChevron() {
-        titleItem.assertTextContains(rightChevron)
+    fun verifyTodoItemContainsRightArrow() {
+        rightArrow.assertIsDisplayed()
     }
 }

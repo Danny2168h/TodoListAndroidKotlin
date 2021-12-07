@@ -13,7 +13,7 @@ import androidx.navigation.NavController
 
 @Composable
 fun EntryDetailedScreen(navController: NavController, title: String?) {
-    Column() {
+    Column {
         BackButtonDetailed(TapBack = { navController.popBackStack() })
         Text(text = title ?: "")
     }

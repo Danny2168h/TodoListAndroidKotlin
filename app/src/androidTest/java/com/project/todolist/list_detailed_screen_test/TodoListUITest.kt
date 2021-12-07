@@ -1,9 +1,10 @@
-package com.project.todolist
+package com.project.todolist.list_detailed_screen_test
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.project.todolist.MainActivity
 import com.project.todolist.data.TodoItem
 import com.project.todolist.screens.todolist.TodoListUI
 import org.junit.Rule

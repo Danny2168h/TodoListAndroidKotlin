@@ -30,7 +30,7 @@ class MainScreenViewModel(private val navController: NavController) : ViewModel(
     }
 
     private fun createView() {
-        viewModelScope.launch() {
+        viewModelScope.launch {
             combine(todoLists, count) { todoList: List<TodoList>, count: Int ->
                 MainScreenViewState(todoList, count)
             }.collect {

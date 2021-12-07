@@ -22,6 +22,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -194,7 +196,11 @@ fun TodoItemUI(
             fontFamily = dmSans, fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.padding(5.dp))
-        Icon(Icons.Rounded.ArrowForwardIos, "")
+        val arrowRight = stringResource(R.string.arrow_right)
+        Icon(
+            Icons.Rounded.ArrowForwardIos,
+            "",
+            modifier = Modifier.semantics { testTag = arrowRight })
     }
 }
 
@@ -327,7 +333,7 @@ fun TopInfoArea(
     Column {
         Spacer(modifier = Modifier.padding(0.dp, 30.dp))
         Text(
-            text = Calendar.getInstance().getTime().toString().substring(0, 10),
+            text = Calendar.getInstance().time.toString().substring(0, 10),
             fontSize = 18.sp,
             color = WhiteTextColor,
             modifier = Modifier.fillMaxWidth(),
