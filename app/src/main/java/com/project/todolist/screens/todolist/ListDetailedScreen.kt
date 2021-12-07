@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowForwardIos
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -26,7 +28,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.project.todolist.R
 import com.project.todolist.data.TodoItem
@@ -193,13 +194,7 @@ fun TodoItemUI(
             fontFamily = dmSans, fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.padding(5.dp))
-        Text(
-            text = stringResource(id = R.string.go_right),
-            color = BlackTextColor,
-            fontSize = 20.sp,
-            fontFamily = dmSans,
-            fontWeight = FontWeight.Bold
-        )
+        Icon(Icons.Rounded.ArrowForwardIos, "")
     }
 }
 
@@ -211,7 +206,7 @@ fun TodoListUI(
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(30.dp, 0.dp, 0.dp, 0.dp))
+            .clip(RoundedCornerShape(30.dp, 30.dp, 0.dp, 0.dp))
             .fillMaxHeight()
             .fillMaxWidth()
             .background(WhiteBackground)
