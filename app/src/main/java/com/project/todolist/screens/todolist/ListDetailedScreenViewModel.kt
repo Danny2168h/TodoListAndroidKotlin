@@ -57,6 +57,7 @@ class ListDetailedScreenViewModel(
                 todoList?.let {
                     currentList.value = it
                     todoItems.value = it.todoItems
+                    count.value = it.todoItems.size
                 }
             }
         }
@@ -74,6 +75,10 @@ class ListDetailedScreenViewModel(
 
     fun onTapEntry(it: String) {
         navController.navigate(Screen.DetailedView.route + "/$it")
+    }
+
+    fun onClickMainMenu() {
+        navController.navigate(Screen.MainScreen.route)
     }
 
     data class ListDetailedScreenViewState(

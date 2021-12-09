@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -49,7 +50,8 @@ fun ListDetailedScreen(listID: Long, navController: NavHostController) {
         todoList = state.todoList,
         count = state.count,
         onClickEntry = { viewModel.onTapEntry(it) },
-        onTapSave = { viewModel.onTapSave(it) }
+        onTapSave = { viewModel.onTapSave(it) },
+        onClickMainMenu = { viewModel.onClickMainMenu() }
     )
 }
 
@@ -60,7 +62,8 @@ fun ListDetailedScreenMain(
     onTapSave: (String) -> Unit,
     todoList: List<TodoItem>,
     count: Int,
-    onClickEntry: (String) -> Unit
+    onClickEntry: (String) -> Unit,
+    onClickMainMenu: () -> Unit,
 ) {
     TodoListTheme {
         val scaffoldState = rememberBottomSheetScaffoldState()
@@ -83,7 +86,7 @@ fun ListDetailedScreenMain(
                     AddItemButton(scaffoldState = scaffoldState, scope = scope)
                 },
                 floatingActionButtonPosition = FabPosition.End,
-                backgroundColor = WhiteBackground, //This controls background colour
+                backgroundColor = Color.Green, //This controls background colour
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy((-28).dp)) {
                     Box(
@@ -100,7 +103,7 @@ fun ListDetailedScreenMain(
                             )
                     ) {
                         TopInfoArea(
-                            clickMainMenu = { /*TODO*/ },
+                            clickMainMenu = { onClickMainMenu() },
                             count = count
                         )
                     }
