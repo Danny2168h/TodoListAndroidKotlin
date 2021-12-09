@@ -30,6 +30,16 @@ val montserrat = FontFamily(
     Font(R.font.mont_extrabold, weight = FontWeight.ExtraBold)
 )
 
+val cormorant = FontFamily(
+    Font(R.font.cormorant_bold, weight = FontWeight.Bold),
+    Font(R.font.cormorant_semibold, weight = FontWeight.SemiBold)
+)
+
+val josefinsans = FontFamily(
+    Font(R.font.josefinsans_bold, weight = FontWeight.Bold),
+    Font(R.font.josefinsans_semibold, weight = FontWeight.SemiBold)
+)
+
 
 // Set of Material typography styles to start with
 val Typography = Typography(

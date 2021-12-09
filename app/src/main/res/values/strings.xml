@@ -2,10 +2,10 @@
     <string name="app_name">Todo List</string>
     <string name="plus_sign">+</string>
     <string name="arrow_right">Arrow Right</string>
-    <string name="main_menu">Main Menu</string>
+    <string name="completed">Completed</string>
     <string name="today">Today</string>
     <string name="tasks">tasks</string>
-    <string name="save">SAVE</string>
+    <string name="save">Save</string>
     <string name="what_to_do">What do you need to do?</string>
     <string name="go_right">></string>
     <string name="todo_title">T O D O</string>
@@ -16,4 +16,9 @@
     <string name="individual_list">individual list</string>
     <string name="pair_rows">pair rows</string>
     <string name="add_icon">add icon</string>
+    <string name="home_icon">home icon</string>
+    <string name="edit">edit</string>
+    <string name="check_save">check save</string>
+    <string name="clear_changes">clear changes</string>
+    <string name="new_todoTitle">New TodoList Title Here</string>
 </resources>

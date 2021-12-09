@@ -197,10 +197,10 @@ fun AddListUI(
 fun TitleArea() {
     Column(
         modifier = Modifier
-            .height(80.dp)
+            .height(100.dp)
             .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.padding(15.dp))
+        Spacer(modifier = Modifier.padding(20.dp))
         Text(
             text = stringResource(id = R.string.todo_title),
             color = WhiteTextColor,

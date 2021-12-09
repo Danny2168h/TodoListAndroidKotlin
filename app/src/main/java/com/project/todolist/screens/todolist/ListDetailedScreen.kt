@@ -12,15 +12,13 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowForwardIos
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -49,9 +47,12 @@ fun ListDetailedScreen(listID: Long, navController: NavHostController) {
     ListDetailedScreenMain(
         todoList = state.todoList,
         count = state.count,
+        todoTitle = state.todoTitle,
         onClickEntry = { viewModel.onTapEntry(it) },
         onTapSave = { viewModel.onTapSave(it) },
-        onClickMainMenu = { viewModel.onClickMainMenu() }
+        onClickMainMenu = { viewModel.onClickMainMenu() },
+        onClickCompleted = { viewModel.onClickCompleted() },
+        onClickCheck = { viewModel.onClickCheck(it) },
     )
 }
 
@@ -62,8 +63,11 @@ fun ListDetailedScreenMain(
     onTapSave: (String) -> Unit,
     todoList: List<TodoItem>,
     count: Int,
+    todoTitle: String,
     onClickEntry: (String) -> Unit,
     onClickMainMenu: () -> Unit,
+    onClickCompleted: () -> Unit,
+    onClickCheck: (String) -> Unit,
 ) {
     TodoListTheme {
         val scaffoldState = rememberBottomSheetScaffoldState()
@@ -86,25 +90,20 @@ fun ListDetailedScreenMain(
                     AddItemButton(scaffoldState = scaffoldState, scope = scope)
                 },
                 floatingActionButtonPosition = FabPosition.End,
-                backgroundColor = Color.Green, //This controls background colour
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy((-28).dp)) {
                     Box(
                         modifier = Modifier
-                            .height(225.dp)
+                            .height(270.dp)
                             .fillMaxWidth()
-                            .background(
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(
-                                        DarkerBlue,
-                                        LightBlue
-                                    )
-                                )
-                            )
+                            .background(ListDetailedTopInfoArea)
                     ) {
                         TopInfoArea(
                             clickMainMenu = { onClickMainMenu() },
-                            count = count
+                            onClickCheckSave = { onClickCheck(it) },
+                            onClickCompleted = { onClickCompleted() },
+                            count = count,
+                            todoTitle = todoTitle
                         )
                     }
                     TodoListUI(
@@ -131,10 +130,9 @@ fun AddItemButton(
                 }
             }
         },
-        shape = RoundedCornerShape(20),
-        backgroundColor = DarkerBlue,
+        shape = RoundedCornerShape(35),
         modifier = Modifier
-            .shadow(20.dp, RoundedCornerShape(20))
+            .shadow(20.dp, RoundedCornerShape(35))
             .size(60.dp),
         elevation = FloatingActionButtonDefaults.elevation(
             defaultElevation = 2.dp,
@@ -144,20 +142,16 @@ fun AddItemButton(
                 modifier = Modifier
                     .fillMaxHeight()
                     .fillMaxWidth()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                DarkerBlue,
-                                LightBlue
-                            )
-                        )
-                    ), contentAlignment = Alignment.Center
+                    .background(DarkerBlue),
+                contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = stringResource(id = R.string.plus_sign),
-                    color = WhiteTextColor,
-                    fontSize = 30.sp
-                )
+                val plus = stringResource(R.string.plus_sign)
+                Icon(Icons.Rounded.AddCircle,
+                    contentDescription = null,
+                    tint = WhiteBackground,
+                    modifier = Modifier
+                        .size(28.dp)
+                        .semantics { testTag = plus })
             }
         }
     )
@@ -173,7 +167,7 @@ fun TodoItemUI(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
         modifier = Modifier
-            .shadow(5.dp, RoundedCornerShape(20))
+            .shadow(2.dp, RoundedCornerShape(20))
             .size(350.dp, 90.dp)
             .background(TodoItemBackGround)
             .clickable { onClickEntry(entry.title) }
@@ -186,16 +180,16 @@ fun TodoItemUI(
             }
             .clip(CircleShape)
             .size(20.dp)
-            .border(2.dp, BlackTextColor, CircleShape)
+            .border(2.dp, WhiteTextColor, CircleShape)
             .background(if (checked) CheckGreen else TodoItemBackGround))
         {
         }
         Spacer(modifier = Modifier.padding(5.dp))
         Text(
             text = entry.title,
-            color = BlackTextColor,
+            color = WhiteTextColor,
             fontSize = 20.sp,
-            modifier = Modifier.width(270.dp),
+            modifier = Modifier.width(255.dp),
             fontFamily = dmSans, fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.padding(5.dp))
@@ -203,7 +197,11 @@ fun TodoItemUI(
         Icon(
             Icons.Rounded.ArrowForwardIos,
             "",
-            modifier = Modifier.semantics { testTag = arrowRight })
+            modifier = Modifier
+                .semantics { testTag = arrowRight }
+                .size(18.dp),
+            tint = WhiteTextColor
+        )
     }
 }
 
@@ -215,10 +213,10 @@ fun TodoListUI(
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(30.dp, 30.dp, 0.dp, 0.dp))
+            .clip(RoundedCornerShape(0.dp, 30.dp, 0.dp, 0.dp))
             .fillMaxHeight()
             .fillMaxWidth()
-            .background(WhiteBackground)
+            .background(ListDetailedViewBackGround)
     ) {
         Column {
             Spacer(modifier = Modifier.padding(0.dp, 10.dp))
@@ -252,14 +250,7 @@ fun AddItemUI(
         modifier = Modifier
             .fillMaxWidth()
             .height(400.dp)
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        DarkerBlue,
-                        LightBlue
-                    )
-                )
-            )
+            .background(DarkerBlue)
     ) {
         Column(
             modifier = Modifier
@@ -328,34 +319,147 @@ fun AddItemUI(
     }
 }
 
+@ExperimentalComposeUiApi
 @Composable
 fun TopInfoArea(
     clickMainMenu: () -> Unit,
-    count: Int
+    onClickCompleted: () -> Unit,
+    onClickCheckSave: (String) -> Unit,
+    count: Int,
+    todoTitle: String
 ) {
+    val home = stringResource(R.string.home_icon)
+    val edit = stringResource(R.string.edit)
+    val checkSave = stringResource(R.string.check_save)
+    val clear = stringResource(R.string.clear_changes)
+
+    var enabledSave by remember { mutableStateOf(false) }
+    var enabledChangeTitle by remember { mutableStateOf(false) }
+    var textState by remember { mutableStateOf(todoTitle) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Column {
-        Spacer(modifier = Modifier.padding(0.dp, 30.dp))
-        Text(
-            text = Calendar.getInstance().time.toString().substring(0, 10),
-            fontSize = 18.sp,
-            color = WhiteTextColor,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            fontFamily = dmSans,
-            fontWeight = FontWeight.Bold
-        )
+        Spacer(modifier = Modifier.padding(0.dp, 20.dp))
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            Spacer(modifier = Modifier.padding(14.dp, 0.dp))
+            if (!enabledChangeTitle) {
+                Icon(Icons.Rounded.Home,
+                    contentDescription = null,
+                    tint = WhiteBackground,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .semantics { testTag = home }
+                        .clickable { clickMainMenu() })
+            } else {
+                Icon(Icons.Rounded.Clear,
+                    contentDescription = null,
+                    tint = WhiteBackground,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .semantics { testTag = clear }
+                        .clickable { enabledChangeTitle = false })
+            }
+            Text(
+                text = stringResource(id = R.string.todo_title),
+                color = WhiteTextColor,
+                fontSize = 25.sp,
+                fontFamily = montserrat,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.width(292.dp)
+            )
+            Spacer(modifier = Modifier.padding(3.dp, 0.dp))
+            if (enabledChangeTitle) {
+                Icon(Icons.Rounded.Check,
+                    contentDescription = null,
+                    tint = WhiteBackground,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .semantics { testTag = checkSave }
+                        .clickable {
+                            if (enabledSave) {
+                                onClickCheckSave(textState)
+                                enabledChangeTitle = false
+                            }
+                        })
+            } else {
+                Icon(Icons.Rounded.Edit,
+                    contentDescription = null,
+                    tint = WhiteBackground,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .semantics { testTag = edit }
+                        .clickable { enabledChangeTitle = true })
+            }
+        }
+        Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            if (!enabledChangeTitle) {
+                Box(
+                    modifier = Modifier
+                        .width(350.dp)
+                        .height(50.dp)
+                        .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+                    Text(
+                        text = todoTitle,
+                        fontSize = 20.sp,
+                        color = WhiteTextColor,
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                        textAlign = TextAlign.Center,
+                        fontFamily = josefinsans,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            } else {
+                OutlinedTextField(
+                    value = textState,
+                    onValueChange =
+                    {
+                        textState = it
+                        enabledSave = textState.isNotEmpty()
+                    },
+                    shape = RoundedCornerShape(20.dp),
+                    modifier = Modifier
+                        .width(350.dp)
+                        .height(50.dp)
+                        .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
+                    placeholder = {
+                        Text(
+                            text = stringResource(id = R.string.new_todoTitle),
+                            color = WhiteTextColorFade,
+                            textAlign = TextAlign.Center,
+                            fontFamily = dmSans,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                    maxLines = 1,
+                    colors = TextFieldDefaults.textFieldColors(textColor = WhiteTextColor),
+                )
+            }
+        }
         Spacer(modifier = Modifier.padding(10.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Spacer(modifier = Modifier.padding(20.dp, 0.dp))
-            Column(horizontalAlignment = Alignment.Start) {
+            Spacer(modifier = Modifier.padding(14.dp, 0.dp))
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = stringResource(id = R.string.today),
-                    fontSize = 30.sp,
+                    text = Calendar.getInstance().time.toString().substring(0, 10),
+                    fontSize = 20.sp,
                     color = WhiteTextColor,
-                    fontFamily = dmSans,
+                    fontFamily = josefinsans,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
@@ -365,24 +469,22 @@ fun TopInfoArea(
                     fontFamily = dmSans
                 )
             }
-            Spacer(modifier = Modifier.padding(60.dp, 0.dp))
+            Spacer(modifier = Modifier.padding(53.dp, 0.dp))
             Box(
                 modifier = Modifier
                     .width(120.dp)
                     .height(50.dp)
-                    .shadow(10.dp, RoundedCornerShape(20))
+                    .shadow(2.dp, RoundedCornerShape(20))
                     .background(WhiteBackground)
-                    .clickable {
-                        clickMainMenu()
-                    }
+                    .clickable { onClickCompleted() }
             ) {
                 Text(
-                    text = stringResource(id = R.string.main_menu),
+                    text = stringResource(id = R.string.completed),
                     Modifier
                         .fillMaxWidth()
                         .padding(0.dp, 15.dp),
                     textAlign = TextAlign.Center,
-                    color = DarkerBlue,
+                    color = ListDetailedViewBackGround,
                     fontSize = 18.sp,
                     fontFamily = dmSans,
                     fontWeight = FontWeight.Bold
