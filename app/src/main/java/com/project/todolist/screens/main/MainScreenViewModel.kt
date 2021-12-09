@@ -39,16 +39,6 @@ class MainScreenViewModel(private val navController: NavController) : ViewModel(
         }
     }
 
-    fun onButtonTap() {
-        viewModelScope.launch {
-            todoListRepository.addTodoList(
-                TodoList(
-                    "First List", listOf(TodoItem("Walk dog"), TodoItem("Add Persistence"))
-                )
-            )
-        }
-    }
-
     fun onTapEntry(id: Long) {
         navController.navigate(Screen.ListDetailedView.route + "/$id")
     }
