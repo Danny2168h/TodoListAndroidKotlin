@@ -9,7 +9,6 @@ import com.project.todolist.MainActivity
 import com.project.todolist.R
 import com.project.todolist.data.TodoList
 import com.project.todolist.screens.main.MainScreenMain
-import com.project.todolist.screens.main.TitleArea
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -20,10 +19,10 @@ class AddListSheetTest {
 
     private val title = "Testing Todo"
     private val todoLists = listOf(TodoList(title = title))
-    private lateinit var addListButton : SemanticsNodeInteraction
-    private lateinit var todoTitleTextArea : SemanticsNodeInteraction
-    private lateinit var createButton : SemanticsNodeInteraction
-    private lateinit var addIcon : SemanticsNodeInteraction
+    private lateinit var addListButton: SemanticsNodeInteraction
+    private lateinit var todoTitleTextArea: SemanticsNodeInteraction
+    private lateinit var createButton: SemanticsNodeInteraction
+    private lateinit var addIcon: SemanticsNodeInteraction
 
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
@@ -39,10 +38,16 @@ class AddListSheetTest {
                 onTapSave = { /*tested elsewhere*/ },
                 onClickDelete = { /*tested elsewhere*/ })
         }
-        addListButton = composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.list))
-        todoTitleTextArea = composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.todo_list_title))
-        createButton = composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.create))
-        addIcon = composeTestRule.onNodeWithTag(composeTestRule.activity.getString(R.string.add_icon), useUnmergedTree = true)
+        addListButton =
+            composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.list))
+        todoTitleTextArea =
+            composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.todo_list_title))
+        createButton =
+            composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.create))
+        addIcon = composeTestRule.onNodeWithTag(
+            composeTestRule.activity.getString(R.string.add_icon),
+            useUnmergedTree = true
+        )
     }
 
     @Test

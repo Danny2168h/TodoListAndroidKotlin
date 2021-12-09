@@ -1,5 +1,6 @@
 package com.project.todolist.list_detailed_screen_test
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -25,19 +26,22 @@ class TopInfoAreaTest {
     private var buttonClicked = false
     private val counts: Int = (0..100).random()
 
+    @ExperimentalComposeUiApi
     @Before
     fun setUp() {
         buttonClicked = false
         composeTestRule.setContent {
             TopInfoArea(
-                clickMainMenu = { buttonClicked = true }, count = counts
+                clickMainMenu = { buttonClicked = true }, todoTitle = "", count = counts,
+                onClickCompleted = {/* Tested Elsewhere */ },
+                onClickCheckSave = {/* Tested Elsewhere */ }
             )
         }
     }
 
     @Test
     fun verifyMainMenuButtonClickable() {
-        val mainMenuText = composeTestRule.activity.getString(R.string.main_menu)
+        val mainMenuText = composeTestRule.activity.getString(R.string.completed)
         composeTestRule.onNodeWithText(mainMenuText).assertHasClickAction()
         composeTestRule.onNodeWithText(mainMenuText).performClick()
         assertTrue(buttonClicked)

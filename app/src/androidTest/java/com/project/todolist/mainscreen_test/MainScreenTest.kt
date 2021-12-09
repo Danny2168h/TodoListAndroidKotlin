@@ -2,15 +2,15 @@ package com.project.todolist.mainscreen_test
 
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithText
 import com.project.todolist.MainActivity
 import com.project.todolist.R
-import com.project.todolist.data.TodoItem
 import com.project.todolist.data.TodoList
 import com.project.todolist.screens.main.MainScreenMain
-import com.project.todolist.screens.todolist.TodoListUI
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -40,7 +40,8 @@ class MainScreenTest {
                 onTapSave = { /*tested elsewhere*/ },
                 onClickDelete = { /*tested elsewhere*/ })
         }
-        composeTestRule.onAllNodesWithTag(composeTestRule.activity.getString(R.string.individual_list)).assertCountEquals(todoLists.size)
+        composeTestRule.onAllNodesWithTag(composeTestRule.activity.getString(R.string.individual_list))
+            .assertCountEquals(todoLists.size)
         todoLists.forEach { composeTestRule.onNodeWithText(it).assertIsDisplayed() }
     }
 }
