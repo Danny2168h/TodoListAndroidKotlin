@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.project.todolist.Graph
-import com.project.todolist.data.TodoItem
 import com.project.todolist.data.TodoList
 import com.project.todolist.data.database.TodoListRepository
 import com.project.todolist.navigation.Screen
@@ -39,8 +38,8 @@ class MainScreenViewModel(private val navController: NavController) : ViewModel(
         }
     }
 
-    fun onTapEntry(id: Long) {
-        navController.navigate(Screen.ListDetailedView.route + "/$id")
+    fun onTapEntry(id: Long, todoTitle: String) {
+        navController.navigate(Screen.ListDetailedView.route + "/$id" + "/$todoTitle")
     }
 
     fun onTapSave(title: String) {

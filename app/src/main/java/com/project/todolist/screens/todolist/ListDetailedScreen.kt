@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -40,14 +41,14 @@ import java.util.*
 @ExperimentalComposeUiApi
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ListDetailedScreen(listID: Long, navController: NavHostController) {
+fun ListDetailedScreen(listID: Long, todoTitle: String, navController: NavHostController) {
     val viewModel = ListDetailedScreenViewModel(listID, navController = navController)
     val state by viewModel.state.collectAsState()
 
     ListDetailedScreenMain(
         todoList = state.todoList,
         count = state.count,
-        todoTitle = state.todoTitle,
+        todoTitle = todoTitle,
         onClickEntry = { viewModel.onTapEntry(it) },
         onTapSave = { viewModel.onTapSave(it) },
         onClickMainMenu = { viewModel.onClickMainMenu() },
@@ -336,6 +337,7 @@ fun TopInfoArea(
     var enabledSave by remember { mutableStateOf(false) }
     var enabledChangeTitle by remember { mutableStateOf(false) }
     var textState by remember { mutableStateOf(todoTitle) }
+    var previousTextState by remember { mutableStateOf(todoTitle) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column {
@@ -357,7 +359,10 @@ fun TopInfoArea(
                     modifier = Modifier
                         .size(22.dp)
                         .semantics { testTag = clear }
-                        .clickable { enabledChangeTitle = false })
+                        .clickable {
+                            textState = previousTextState
+                            enabledChangeTitle = false
+                        })
             }
             Text(
                 text = stringResource(id = R.string.todo_title),
@@ -389,7 +394,10 @@ fun TopInfoArea(
                     modifier = Modifier
                         .size(22.dp)
                         .semantics { testTag = edit }
-                        .clickable { enabledChangeTitle = true })
+                        .clickable {
+                            previousTextState = textState
+                            enabledChangeTitle = true
+                        })
             }
         }
         Spacer(modifier = Modifier.padding(0.dp, 10.dp))
@@ -406,7 +414,7 @@ fun TopInfoArea(
                     contentAlignment = Alignment.BottomCenter
                 ) {
                     Text(
-                        text = todoTitle,
+                        text = textState,
                         fontSize = 20.sp,
                         color = WhiteTextColor,
                         modifier = Modifier
@@ -440,6 +448,12 @@ fun TopInfoArea(
                             fontWeight = FontWeight.Bold
                         )
                     },
+                    textStyle = TextStyle(
+                        fontSize = 15.sp,
+                        color = WhiteTextColor,
+                        fontFamily = josefinsans,
+                        fontWeight = FontWeight.Bold
+                    ),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),

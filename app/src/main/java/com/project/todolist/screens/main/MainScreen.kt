@@ -49,7 +49,7 @@ fun MainScreen(navController: NavController) {
 
     MainScreenMain(
         todoLists = state.todoLists,
-        onClickEntry = { viewModel.onTapEntry(it) },
+        onClickEntry = { arg1, arg2 -> viewModel.onTapEntry(arg1, arg2) },
         onTapSave = { viewModel.onTapSave(it) },
         onClickDelete = { viewModel.onTapDelete(it) })
 }
@@ -59,7 +59,7 @@ fun MainScreen(navController: NavController) {
 @Composable
 fun MainScreenMain(
     todoLists: List<TodoList>,
-    onClickEntry: (Long) -> Unit,
+    onClickEntry: (Long, String) -> Unit,
     onTapSave: (String) -> Unit,
     onClickDelete: (Long) -> Unit
 ) {
@@ -101,7 +101,7 @@ fun MainScreenMain(
                         TitleArea()
                         TodoListSelection(
                             todoLists = todoLists,
-                            onClickEntry = { onClickEntry(it) },
+                            onClickEntry = { arg1, arg2 -> onClickEntry(arg1, arg2) },
                             onClickDelete = { onClickDelete(it) })
                     }
                 }
@@ -214,7 +214,7 @@ fun TitleArea() {
 @Composable
 fun TodoListSelection(
     todoLists: List<TodoList>,
-    onClickEntry: (Long) -> Unit,
+    onClickEntry: (Long, String) -> Unit,
     onClickDelete: (Long) -> Unit
 ) {
     val pairedLists = separateInto2s(todoLists)
@@ -232,7 +232,7 @@ fun TodoListSelection(
                 items(pairedLists) { todoList ->
                     TodoListPairRow(
                         todoList,
-                        onClickEntry = { onClickEntry(it) },
+                        onClickEntry = { arg1, arg2 -> onClickEntry(arg1, arg2) },
                         onClickDelete = { onClickDelete(it) })
                 }
             }
@@ -243,7 +243,7 @@ fun TodoListSelection(
 @Composable
 fun TodoListPairRow(
     pairTodoList: Pair<TodoList, TodoList?>,
-    onClickEntry: (Long) -> Unit,
+    onClickEntry: (Long, String) -> Unit,
     onClickDelete: (Long) -> Unit
 ) {
     val pairRows = stringResource(R.string.pair_rows)
@@ -253,13 +253,13 @@ fun TodoListPairRow(
         modifier = Modifier.semantics { testTag = pairRows }) {
         TodoListIndividual(
             todoList = pairTodoList.first,
-            onClickEntry = { onClickEntry(it) },
+            onClickEntry = { arg1, arg2 -> onClickEntry(arg1, arg2) },
             onClickDelete = { onClickDelete(it) })
         if (pairTodoList.second != null) {
             Spacer(modifier = Modifier.padding(15.dp, 0.dp))
             TodoListIndividual(
                 todoList = pairTodoList.second!!,
-                onClickEntry = { onClickEntry(it) },
+                onClickEntry = { arg1, arg2 -> onClickEntry(arg1, arg2) },
                 onClickDelete = { onClickDelete(it) })
         }
     }
@@ -268,7 +268,7 @@ fun TodoListPairRow(
 @Composable
 fun TodoListIndividual(
     todoList: TodoList,
-    onClickEntry: (Long) -> Unit,
+    onClickEntry: (id: Long, title: String) -> Unit,
     onClickDelete: (Long) -> Unit
 ) {
     val closeIcon = stringResource(R.string.close_icon)
@@ -276,7 +276,7 @@ fun TodoListIndividual(
     Box(modifier = Modifier
         .shadow(2.dp, RoundedCornerShape(20))
         .size(160.dp, 180.dp)
-        .clickable { onClickEntry(todoList.id) }
+        .clickable { onClickEntry(todoList.id, todoList.title) }
         .background(WhiteTextColor)
         .semantics { testTag = individualList }) {
         Column(

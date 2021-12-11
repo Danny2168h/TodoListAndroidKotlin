@@ -29,15 +29,19 @@ fun SetUpNavGraph(navigationControl: NavHostController) {
         }
 
         composable(
-            route = Screen.ListDetailedView.route + "/{id}",
+            route = Screen.ListDetailedView.route + "/{id}" + "/{title}",
             arguments = listOf(
                 navArgument("id") {
                     type = NavType.LongType
+                },
+                navArgument("title") {
+                    type = NavType.StringType
                 }
             )
         ) { entry ->
             ListDetailedScreen(
                 listID = entry.arguments?.getLong("id") ?: 0,
+                todoTitle = entry.arguments?.getString("title") ?: "",
                 navController = navigationControl
             )
         }
