@@ -28,7 +28,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -119,7 +118,7 @@ fun AddListUI(
     scaffoldState: BottomSheetScaffoldState
 ) {
     var enabled by remember { mutableStateOf(false) }
-    val textState = remember { mutableStateOf(TextFieldValue()) }
+    var textState by remember { mutableStateOf("") }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -143,11 +142,11 @@ fun AddListUI(
             Spacer(Modifier.padding(0.dp, 15.dp))
             val keyboardController = LocalSoftwareKeyboardController.current
             OutlinedTextField(
-                value = textState.value,
+                value = textState,
                 onValueChange =
                 {
-                    textState.value = it
-                    enabled = textState.value.text.isNotEmpty()
+                    textState = it
+                    enabled = textState.isNotEmpty()
                 },
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
@@ -170,13 +169,13 @@ fun AddListUI(
             Spacer(modifier = Modifier.padding(0.dp, 15.dp))
             Button(
                 onClick = {
-                    OnTapSave(textState.value.text)
+                    OnTapSave(textState)
                     scope.launch {
                         scaffoldState.bottomSheetState.apply {
                             if (isCollapsed) expand() else collapse()
                         }
                     }
-
+                    textState = ""
                 },
                 enabled = enabled,
                 shape = RoundedCornerShape(20),

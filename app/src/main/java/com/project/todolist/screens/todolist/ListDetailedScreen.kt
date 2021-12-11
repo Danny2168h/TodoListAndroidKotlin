@@ -26,7 +26,6 @@ import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -246,7 +245,7 @@ fun AddItemUI(
     scope: CoroutineScope
 ) {
     var enabled by remember { mutableStateOf(false) }
-    val textState = remember { mutableStateOf(TextFieldValue()) }
+    var textState by remember { mutableStateOf("") }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -270,11 +269,11 @@ fun AddItemUI(
             Spacer(Modifier.padding(0.dp, 15.dp))
             val keyboardController = LocalSoftwareKeyboardController.current
             OutlinedTextField(
-                value = textState.value,
+                value = textState,
                 onValueChange =
                 {
-                    textState.value = it
-                    enabled = textState.value.text.isNotEmpty()
+                    textState = it
+                    enabled = textState.isNotEmpty()
                 },
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
@@ -297,13 +296,13 @@ fun AddItemUI(
             Spacer(modifier = Modifier.padding(0.dp, 15.dp))
             Button(
                 onClick = {
-                    OnTapSave(textState.value.text)
+                    OnTapSave(textState)
                     scope.launch {
                         scaffoldState.bottomSheetState.apply {
                             if (isCollapsed) expand() else collapse()
                         }
                     }
-
+                    textState = ""
                 },
                 enabled = enabled,
                 shape = RoundedCornerShape(20),
@@ -483,7 +482,7 @@ fun TopInfoArea(
                     fontFamily = dmSans
                 )
             }
-            Spacer(modifier = Modifier.padding(53.dp, 0.dp))
+            Spacer(modifier = Modifier.padding(63.dp, 0.dp))
             Box(
                 modifier = Modifier
                     .width(120.dp)
