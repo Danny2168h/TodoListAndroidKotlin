@@ -29,16 +29,14 @@ class ListDetailedScreenViewModel(
     private val count = MutableStateFlow(-1)
     private val selectedID = MutableStateFlow(id)
     private val currentList = MutableStateFlow(TodoList())
-    private val todoTitle = MutableStateFlow("")
-
 
     private val _state = MutableStateFlow(ListDetailedScreenViewState())
     val state: StateFlow<ListDetailedScreenViewState>
         get() = _state
 
     init {
-        viewStateUpdater()
         dataBaseGetter()
+        viewStateUpdater()
     }
 
     private fun viewStateUpdater() {
@@ -46,9 +44,8 @@ class ListDetailedScreenViewModel(
             combine(
                 todoItems,
                 count,
-                todoTitle
-            ) { todoItems: List<TodoItem>, count: Int, title: String ->
-                ListDetailedScreenViewState(todoItems, count, title)
+            ) { todoItems: List<TodoItem>, count: Int ->
+                ListDetailedScreenViewState(todoItems, count)
             }.collect {
                 _state.value = it
             }
@@ -61,7 +58,6 @@ class ListDetailedScreenViewModel(
                 val todoList: TodoList? = todoLists.find { it.id == selectedID.value }
                 todoList?.let {
                     currentList.value = it
-                    todoTitle.value = it.title
                     todoItems.value = it.todoItems
                     count.value = it.todoItems.size
                 }
@@ -104,7 +100,6 @@ class ListDetailedScreenViewModel(
     data class ListDetailedScreenViewState(
         val todoList: List<TodoItem> = emptyList(),
         val count: Int = -1,
-        val todoTitle: String = ""
     )
 
 }
