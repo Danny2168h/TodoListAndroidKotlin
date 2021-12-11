@@ -119,7 +119,7 @@ fun AddListUI(
     scaffoldState: BottomSheetScaffoldState
 ) {
     var enabled by remember { mutableStateOf(false) }
-    val textState = remember { mutableStateOf(TextFieldValue()) }
+    var textState by remember { mutableStateOf("") }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -143,11 +143,11 @@ fun AddListUI(
             Spacer(Modifier.padding(0.dp, 15.dp))
             val keyboardController = LocalSoftwareKeyboardController.current
             OutlinedTextField(
-                value = textState.value,
+                value = textState,
                 onValueChange =
                 {
-                    textState.value = it
-                    enabled = textState.value.text.isNotEmpty()
+                    textState = it
+                    enabled = textState.isNotEmpty()
                 },
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
@@ -170,13 +170,13 @@ fun AddListUI(
             Spacer(modifier = Modifier.padding(0.dp, 15.dp))
             Button(
                 onClick = {
-                    OnTapSave(textState.value.text)
+                    OnTapSave(textState)
                     scope.launch {
                         scaffoldState.bottomSheetState.apply {
                             if (isCollapsed) expand() else collapse()
                         }
                     }
-
+                    textState = ""
                 },
                 enabled = enabled,
                 shape = RoundedCornerShape(20),
