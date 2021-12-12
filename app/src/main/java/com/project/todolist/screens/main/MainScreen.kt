@@ -226,7 +226,9 @@ fun TodoListSelection(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(35.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
             ) {
                 items(pairedLists) { todoList ->
                     TodoListPairRow(
