@@ -96,7 +96,8 @@ fun ListDetailedScreenMain(
                         modifier = Modifier
                             .height(270.dp)
                             .fillMaxWidth()
-                            .background(ListDetailedTopInfoArea)
+                            .background(ListDetailedTopInfoArea),
+                        contentAlignment = Alignment.TopCenter
                     ) {
                         TopInfoArea(
                             clickMainMenu = { onClickMainMenu() },
@@ -339,10 +340,12 @@ fun TopInfoArea(
     var previousTextState by remember { mutableStateOf(todoTitle) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    Column {
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(modifier = Modifier.padding(0.dp, 20.dp))
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            Spacer(modifier = Modifier.padding(14.dp, 0.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
             if (!enabledChangeTitle) {
                 Icon(Icons.Rounded.Home,
                     contentDescription = null,
@@ -372,7 +375,6 @@ fun TopInfoArea(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.width(292.dp)
             )
-            Spacer(modifier = Modifier.padding(3.dp, 0.dp))
             if (enabledChangeTitle) {
                 Icon(Icons.Rounded.Check,
                     contentDescription = null,
@@ -400,73 +402,67 @@ fun TopInfoArea(
             }
         }
         Spacer(modifier = Modifier.padding(0.dp, 10.dp))
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            if (!enabledChangeTitle) {
-                Box(
+        if (!enabledChangeTitle) {
+            Box(
+                modifier = Modifier
+                    .width(350.dp)
+                    .height(50.dp)
+                    .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                Text(
+                    text = textState,
+                    fontSize = 20.sp,
+                    color = WhiteTextColor,
                     modifier = Modifier
-                        .width(350.dp)
-                        .height(50.dp)
-                        .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
-                    contentAlignment = Alignment.BottomCenter
-                ) {
-                    Text(
-                        text = textState,
-                        fontSize = 20.sp,
-                        color = WhiteTextColor,
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp),
-                        textAlign = TextAlign.Center,
-                        fontFamily = josefinsans,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            } else {
-                OutlinedTextField(
-                    value = textState,
-                    onValueChange =
-                    {
-                        textState = it
-                        enabledSave = textState.isNotEmpty()
-                    },
-                    shape = RoundedCornerShape(20.dp),
-                    modifier = Modifier
-                        .width(350.dp)
-                        .height(50.dp)
-                        .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
-                    placeholder = {
-                        Text(
-                            text = stringResource(id = R.string.new_todoTitle),
-                            color = WhiteTextColorFade,
-                            textAlign = TextAlign.Center,
-                            fontFamily = dmSans,
-                            fontWeight = FontWeight.Bold
-                        )
-                    },
-                    textStyle = TextStyle(
-                        fontSize = 15.sp,
-                        color = WhiteTextColor,
-                        fontFamily = josefinsans,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                    maxLines = 1,
-                    colors = TextFieldDefaults.textFieldColors(textColor = WhiteTextColor),
+                        .fillMaxHeight()
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    fontFamily = josefinsans,
+                    fontWeight = FontWeight.Bold
                 )
             }
+        } else {
+            OutlinedTextField(
+                value = textState,
+                onValueChange =
+                {
+                    textState = it
+                    enabledSave = textState.isNotEmpty()
+                },
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier
+                    .width(350.dp)
+                    .height(50.dp)
+                    .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
+                placeholder = {
+                    Text(
+                        text = stringResource(id = R.string.new_todoTitle),
+                        color = WhiteTextColorFade,
+                        textAlign = TextAlign.Center,
+                        fontFamily = dmSans,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                textStyle = TextStyle(
+                    fontSize = 15.sp,
+                    color = WhiteTextColor,
+                    fontFamily = josefinsans,
+                    fontWeight = FontWeight.Bold
+                ),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                maxLines = 1,
+                colors = TextFieldDefaults.textFieldColors(textColor = WhiteTextColor),
+            )
         }
         Spacer(modifier = Modifier.padding(10.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
         ) {
-            Spacer(modifier = Modifier.padding(14.dp, 0.dp))
+            Spacer(modifier = Modifier.padding(10.dp, 0.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = Calendar.getInstance().time.toString().substring(0, 10),
@@ -482,7 +478,7 @@ fun TopInfoArea(
                     fontFamily = dmSans
                 )
             }
-            Spacer(modifier = Modifier.padding(63.dp, 0.dp))
+            Spacer(modifier = Modifier.padding(53.dp, 0.dp))
             Box(
                 modifier = Modifier
                     .width(120.dp)
