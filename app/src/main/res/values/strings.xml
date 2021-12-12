@@ -21,4 +21,5 @@
     <string name="check_save">check save</string>
     <string name="clear_changes">clear changes</string>
     <string name="new_todoTitle">New TodoList Title Here</string>
+    <string name="top_box">top box </string>
 </resources>

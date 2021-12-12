@@ -119,6 +119,7 @@ fun AddListUI(
 ) {
     var enabled by remember { mutableStateOf(false) }
     var textState by remember { mutableStateOf("") }
+    val todoTitleHere = stringResource(R.string.todo_list_title)
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -150,11 +151,12 @@ fun AddListUI(
                 },
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
-                    .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
+                    .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp))
+                    .semantics { testTag = todoTitleHere },
                 singleLine = true,
                 placeholder = {
                     Text(
-                        text = stringResource(id = R.string.todo_list_title),
+                        text = todoTitleHere,
                         color = WhiteTextColor,
                         textAlign = TextAlign.Center,
                         fontFamily = dmSans,

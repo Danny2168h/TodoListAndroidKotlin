@@ -31,7 +31,7 @@ class TodoListIndividualTest {
         composeTestRule.setContent {
             TodoListIndividual(
                 todoList = todoList,
-                onClickEntry = { /*tested elsewhere*/ },
+                onClickEntry = { arg1, arg2 -> twoParam(0, "") /*tested elsewhere*/ },
                 onClickDelete = { /*tested elsewhere*/ }
             )
             deleteIcon = composeTestRule.onNodeWithTag(
@@ -56,6 +56,10 @@ class TodoListIndividualTest {
     @Test
     fun verifyCloseIconCanBeTapped() {
         deleteIcon.assertHasClickAction()
+    }
+
+    private fun twoParam(num: Long, word: String) {
+        //Do nothing
     }
 
 }

@@ -34,14 +34,14 @@ class AddListSheetTest {
         composeTestRule.setContent {
             MainScreenMain(
                 todoLists = todoLists,
-                onClickEntry = { /*tested elsewhere*/ },
+                onClickEntry = { arg1, arg2 -> twoParam(0, "") /*tested elsewhere*/ },
                 onTapSave = { /*tested elsewhere*/ },
                 onClickDelete = { /*tested elsewhere*/ })
         }
         addListButton =
             composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.list))
         todoTitleTextArea =
-            composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.todo_list_title))
+            composeTestRule.onNodeWithTag(composeTestRule.activity.getString(R.string.todo_list_title))
         createButton =
             composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.create))
         addIcon = composeTestRule.onNodeWithTag(
@@ -104,6 +104,24 @@ class AddListSheetTest {
 
         todoTitleTextArea.assertIsNotDisplayed()
         createButton.assertIsNotDisplayed()
+    }
+
+    @Test
+    fun verifyTextIsClearedWhenSaveIsTapped() {
+        val testText = "abc123"
+        addListButton.performClick()
+
+        todoTitleTextArea.performTextInput(testText)
+
+        createButton.performClick()
+
+        addListButton.performClick()
+
+        todoTitleTextArea.assert(hasText(""))
+    }
+
+    private fun twoParam(num: Long, word: String) {
+        //Do nothing
     }
 
 }

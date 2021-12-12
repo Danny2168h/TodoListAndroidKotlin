@@ -247,6 +247,8 @@ fun AddItemUI(
 ) {
     var enabled by remember { mutableStateOf(false) }
     var textState by remember { mutableStateOf("") }
+    val topBox = stringResource(R.string.top_box)
+    val needToDo = stringResource(id = R.string.what_to_do)
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -266,6 +268,7 @@ fun AddItemUI(
                     .width(35.dp)
                     .height(5.dp)
                     .background(WhiteBackground)
+                    .semantics { testTag = topBox }
             )
             Spacer(Modifier.padding(0.dp, 15.dp))
             val keyboardController = LocalSoftwareKeyboardController.current
@@ -278,11 +281,12 @@ fun AddItemUI(
                 },
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
-                    .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
+                    .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp))
+                    .semantics { testTag = needToDo },
                 singleLine = true,
                 placeholder = {
                     Text(
-                        text = stringResource(id = R.string.what_to_do),
+                        text = needToDo,
                         color = WhiteTextColorFade,
                         textAlign = TextAlign.Center,
                         fontFamily = dmSans,

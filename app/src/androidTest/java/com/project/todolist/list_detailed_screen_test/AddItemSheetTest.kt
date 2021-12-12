@@ -23,6 +23,7 @@ class AddItemSheetTest {
     private lateinit var plusSign: SemanticsNodeInteraction
     private lateinit var whatToDo: SemanticsNodeInteraction
     private lateinit var saveButton: SemanticsNodeInteraction
+    private lateinit var topBox: SemanticsNodeInteraction
 
 
     @ExperimentalComposeUiApi
@@ -34,16 +35,27 @@ class AddItemSheetTest {
                 todoList = mutableListOf(),
                 count = 0,
                 onClickEntry = {/* Tested elsewhere */ },
-                onTapSave = { clicked = true }
+                onTapSave = { clicked = true },
+                todoTitle = "",
+                onClickCompleted = {/* Tested elsewhere */ },
+                onClickMainMenu = {/* Tested elsewhere */ },
+                onClickCheck = {/* Tested elsewhere */ },
             )
         }
 
         plusSign =
-            composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.plus_sign))
+            composeTestRule.onNodeWithTag(
+                composeTestRule.activity.getString(R.string.plus_sign),
+                useUnmergedTree = true
+            )
         whatToDo =
-            composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.what_to_do))
+            composeTestRule.onNodeWithTag(
+                composeTestRule.activity.getString(R.string.what_to_do),
+                useUnmergedTree = true
+            )
         saveButton =
             composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.save))
+        topBox = composeTestRule.onNodeWithTag(composeTestRule.activity.getString(R.string.top_box))
     }
 
     @ExperimentalComposeUiApi
@@ -53,7 +65,6 @@ class AddItemSheetTest {
         whatToDo.assertIsNotDisplayed()
         saveButton.assertIsNotDisplayed()
         plusSign.assertIsDisplayed()
-        plusSign.assertHasClickAction()
 
         plusSign.performClick()
 
@@ -93,5 +104,14 @@ class AddItemSheetTest {
         saveButton.assertIsNotDisplayed()
     }
 
+    @Test
+    fun verifyTextIsClearedAfterSaving() {
+        plusSign.performClick()
+        whatToDo.performTextInput("a")
+        saveButton.performClick()
+
+        plusSign.performClick()
+        whatToDo.assert(hasText(""))
+    }
 
 }
