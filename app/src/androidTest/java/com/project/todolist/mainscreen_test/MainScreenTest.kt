@@ -36,7 +36,7 @@ class MainScreenTest {
         composeTestRule.setContent {
             MainScreenMain(
                 todoLists = testTodoLists,
-                onClickEntry = { /*tested elsewhere*/ },
+                onClickEntry = { arg1, arg2 -> twoParam(0, "") /*tested elsewhere*/ },
                 onTapSave = { /*tested elsewhere*/ },
                 onClickDelete = { /*tested elsewhere*/ })
         }
@@ -44,4 +44,9 @@ class MainScreenTest {
             .assertCountEquals(todoLists.size)
         todoLists.forEach { composeTestRule.onNodeWithText(it).assertIsDisplayed() }
     }
+
+    private fun twoParam(num: Long, word: String) {
+        //Do nothing
+    }
+
 }

@@ -19,7 +19,7 @@ class TodoItemTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
-    private val title = "Test Item String"
+    private lateinit var title: String
     private var buttonClicked = false
 
     lateinit var rightArrow: SemanticsNodeInteraction
@@ -27,6 +27,7 @@ class TodoItemTest {
 
     @Before
     fun setup() {
+        title = getRandomString(20)
         buttonClicked = false
         composeTestRule.setContent {
             TodoItemUI(
@@ -56,5 +57,11 @@ class TodoItemTest {
     @Test
     fun verifyTodoItemContainsRightArrow() {
         rightArrow.assertIsDisplayed()
+    }
+
+    private fun getRandomString(length: Int): String {
+        val charset = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+        return List(length) { charset.random() }
+            .joinToString("")
     }
 }

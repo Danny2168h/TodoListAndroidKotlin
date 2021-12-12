@@ -26,7 +26,7 @@ class TodoListPairRowTest {
     fun verifyBothTodoListsAreDisplayed() {
         composeTestRule.setContent {
             TodoListPairRow(
-                onClickEntry = {/*tested elsewhere*/ },
+                onClickEntry = { arg1, arg2 -> twoParam(0, "") /*tested elsewhere*/ },
                 onClickDelete = {/*tested elsewhere*/ },
                 pairTodoList = todoListPairBothNonNull
             )
@@ -45,7 +45,7 @@ class TodoListPairRowTest {
     fun verifyOneTodoListIsDisplayed() {
         composeTestRule.setContent {
             TodoListPairRow(
-                onClickEntry = {/*tested elsewhere*/ },
+                onClickEntry = { arg1, arg2 -> twoParam(0, "") /*tested elsewhere*/ },
                 onClickDelete = {/*tested elsewhere*/ },
                 pairTodoList = todoListPairSecondNull
             )
@@ -55,5 +55,9 @@ class TodoListPairRowTest {
         composeTestRule.onNodeWithText(title)
             .assertIsDisplayed()
             .assertTextContains(title)
+    }
+
+    private fun twoParam(num: Long, word: String) {
+        //Do nothing
     }
 }
