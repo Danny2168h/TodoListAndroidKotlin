@@ -31,7 +31,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.project.todolist.R
 import com.project.todolist.data.TodoList
 import com.project.todolist.ui.theme.*
@@ -41,9 +40,7 @@ import kotlinx.coroutines.launch
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @Composable
-fun MainScreen(navController: NavController) {
-
-    val viewModel = MainScreenViewModel(navController = navController)
+fun MainScreen(viewModel: MainScreenViewModel) {
     val state by viewModel.state.collectAsState()
 
     MainScreenMain(

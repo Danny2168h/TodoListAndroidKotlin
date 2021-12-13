@@ -29,7 +29,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import com.project.todolist.R
 import com.project.todolist.data.TodoItem
 import com.project.todolist.ui.theme.*
@@ -40,8 +39,7 @@ import java.util.*
 @ExperimentalComposeUiApi
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ListDetailedScreen(listID: Long, todoTitle: String, navController: NavHostController) {
-    val viewModel = ListDetailedScreenViewModel(listID, navController = navController)
+fun ListDetailedScreen(viewModel: ListDetailedScreenViewModel, todoTitle: String) {
     val state by viewModel.state.collectAsState()
 
     ListDetailedScreenMain(

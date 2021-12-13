@@ -10,7 +10,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.project.todolist.screens.entry.EntryDetailedScreen
 import com.project.todolist.screens.main.MainScreen
+import com.project.todolist.screens.main.MainScreenViewModel
 import com.project.todolist.screens.todolist.ListDetailedScreen
+import com.project.todolist.screens.todolist.ListDetailedScreenViewModel
 
 
 @ExperimentalComposeUiApi
@@ -25,7 +27,7 @@ fun SetUpNavGraph(navigationControl: NavHostController) {
         composable(
             route = Screen.MainScreen.route
         ) {
-            MainScreen(navController = navigationControl)
+            MainScreen(MainScreenViewModel(navigationControl))
         }
 
         composable(
@@ -40,9 +42,11 @@ fun SetUpNavGraph(navigationControl: NavHostController) {
             )
         ) { entry ->
             ListDetailedScreen(
-                listID = entry.arguments?.getLong("id") ?: 0,
+                ListDetailedScreenViewModel(
+                    id = entry.arguments?.getLong("id") ?: 0,
+                    navController = navigationControl
+                ),
                 todoTitle = entry.arguments?.getString("title") ?: "",
-                navController = navigationControl
             )
         }
         composable(
