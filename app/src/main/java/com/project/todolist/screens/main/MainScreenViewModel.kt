@@ -34,7 +34,6 @@ class MainScreenViewModel(private val navController: NavController) : ViewModel(
                 MainScreenViewState(todoList, count)
             }.collect {
                 _state.value = it
-                println("Main screen view model get data")
             }
         }
     }

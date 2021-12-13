@@ -60,7 +60,6 @@ class ListDetailedScreenViewModel(
                     currentList.value = it
                     todoItems.value = it.todoItems
                     count.value = it.todoItems.size
-                    println("List detailed get data")
                 }
             }
         }
