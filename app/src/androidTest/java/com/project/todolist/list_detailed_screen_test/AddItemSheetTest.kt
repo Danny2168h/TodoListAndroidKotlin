@@ -40,6 +40,7 @@ class AddItemSheetTest {
                 onClickCompleted = {/* Tested elsewhere */ },
                 onClickMainMenu = {/* Tested elsewhere */ },
                 onClickCheck = {/* Tested elsewhere */ },
+                onTapEntryComplete = {/* Tested elsewhere */ },
             )
         }
 

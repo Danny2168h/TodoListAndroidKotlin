@@ -15,7 +15,7 @@ import com.project.todolist.model.TodoItem
 import com.project.todolist.model.TodoList
 import com.project.todolist.model.database.TodoListRepository
 import com.project.todolist.navigation.Screen
-import com.project.todolist.screens.todolist.counterremove.RemoveItemWorker
+import com.project.todolist.screens.todolist.counterremove.MoveToCompletedWorker
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -94,13 +94,16 @@ class ListDetailedScreenViewModel(
     }
 
     fun onClickCompleted() {
-        TODO("Not yet implemented")
+        navController.navigate(Screen.CompletedScreen.route)
     }
 
     fun onTapEntryComplete(todoItem: TodoItem) = viewModelScope.launch(dispatcher) {
         todoListRepository.updateTodoItem(
             id,
-            todoItem.copy(complete = !todoItem.complete, uniqueID = todoItem.uniqueID)
+            todoItem.copy(
+                markedForCompletion = !todoItem.markedForCompletion,
+                uniqueID = todoItem.uniqueID
+            )
         )
         val uniqueID = todoItem.uniqueID
 
@@ -112,8 +115,8 @@ class ListDetailedScreenViewModel(
             val data = Data.Builder()
             data.putLong("LIST_ID", id)
             data.putString("ITEM_ID", uniqueID)
-            val worker = OneTimeWorkRequestBuilder<RemoveItemWorker>()
-            worker.setInitialDelay(60, TimeUnit.SECONDS)
+            val worker = OneTimeWorkRequestBuilder<MoveToCompletedWorker>()
+            worker.setInitialDelay(5, TimeUnit.SECONDS)
             worker.setInputData(data.build())
             worker.addTag(uniqueID)
             workManager.enqueue(worker.build())

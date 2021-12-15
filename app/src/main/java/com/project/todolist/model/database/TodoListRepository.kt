@@ -23,18 +23,29 @@ class TodoListRepository(private val todoListDao: TodoListDao) {
         return todoListDao.getListWithID(id)
     }
 
-    suspend fun deleteTodoItem(listID: Long, itemID: String?) {
+    suspend fun deleteTodoItemFromActive(listID: Long, itemID: String?) {
         if (itemID != null) {
             val todoList = getListWithID(listID)
             updateTodoList(todoList = todoList.copy(todoItems = todoList.todoItems.filter { todoItem -> todoItem.uniqueID != itemID }))
         }
     }
 
+    suspend fun moveTodoItemToCompleted(listID: Long, itemID: String?) {
+        val todoList = getListWithID(listID)
+        val todoItem: TodoItem? = todoList.todoItems.find { it.uniqueID == itemID }
+        updateTodoList(
+            todoList = todoList.copy(
+                todoItems = todoList.todoItems.filter { todoItem -> todoItem.uniqueID != itemID },
+                completedItems = todoList.completedItems + todoItem!!
+            )
+        )
+    }
+
     suspend fun updateTodoItem(listID: Long, updatedItem: TodoItem) {
         val todoList = getListWithID(listID)
         updateTodoList(
             todoList = todoList.copy(
-                todoItems = updateTodo(
+                todoItems = updateTodoItem(
                     todoList.todoItems,
                     updatedItem
                 )
@@ -42,11 +53,11 @@ class TodoListRepository(private val todoListDao: TodoListDao) {
         )
     }
 
-    private fun updateTodo(todoList: List<TodoItem>, updatedItem: TodoItem): List<TodoItem> {
+    private fun updateTodoItem(todoList: List<TodoItem>, updatedItem: TodoItem): List<TodoItem> {
         for (todoItem in todoList) {
             if (todoItem.uniqueID == updatedItem.uniqueID) {
                 todoItem.description = updatedItem.description
-                todoItem.complete = updatedItem.complete
+                todoItem.markedForCompletion = updatedItem.markedForCompletion
                 todoItem.title = updatedItem.title
             }
         }

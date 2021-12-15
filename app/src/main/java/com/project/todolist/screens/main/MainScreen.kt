@@ -271,8 +271,10 @@ fun TodoListIndividual(
     onClickEntry: (id: Long, title: String) -> Unit,
     onClickDelete: (Long) -> Unit
 ) {
+    val openDialog = remember { mutableStateOf(false) }
     val closeIcon = stringResource(R.string.close_icon)
     val individualList = stringResource(R.string.individual_list)
+    val todoCount = todoList.todoItems.size
     Box(modifier = Modifier
         .shadow(2.dp, RoundedCornerShape(20))
         .size(160.dp, 180.dp)
@@ -291,12 +293,17 @@ fun TodoListIndividual(
                     tint = BlackTextColor,
                     modifier = Modifier
                         .size(22.dp)
-                        .clickable { onClickDelete(todoList.id) }
+                        .clickable {
+                            if (todoCount > 0) {
+                                openDialog.value = true
+                            } else {
+                                onClickDelete(todoList.id)
+                            }
+                        }
                         .semantics { testTag = closeIcon }
                 )
                 Spacer(modifier = Modifier.padding(horizontal = 5.dp))
             }
-            Spacer(modifier = Modifier.padding(0.dp, 0.dp))
             Text(
                 text = todoList.title,
                 fontFamily = montserrat,
@@ -308,8 +315,40 @@ fun TodoListIndividual(
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
+            Spacer(modifier = Modifier.padding(10.dp))
+            Text(
+                text = "${todoCount} items",
+                fontFamily = josefinsans,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = BlackTextColor,
+                modifier = Modifier
+                    .padding(5.dp)
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
         }
-
+    }
+    if (openDialog.value) {
+        AlertDialog(onDismissRequest = { openDialog.value = false },
+            title = { Text(text = stringResource(R.string.confirm_delete)) },
+            text = { Text(text = stringResource(R.string.items_in_list)) },
+            confirmButton = {
+                Button(onClick = {
+                    onClickDelete(todoList.id)
+                    openDialog.value = false
+                }) {
+                    Text(text = stringResource(R.string.yes))
+                }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    openDialog.value = false
+                }) {
+                    Text(text = stringResource(R.string.no))
+                }
+            }
+        )
     }
 }
 
@@ -354,6 +393,7 @@ fun AddListButton(
         }
     }
 }
+
 
 private fun separateInto2s(todoLists: List<TodoList>): List<Pair<TodoList, TodoList?>> {
     var output = mutableListOf<Pair<TodoList, TodoList?>>()

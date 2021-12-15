@@ -5,10 +5,10 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.project.todolist.Graph
 
-class RemoveItemWorker(appContext: Context, workerParams: WorkerParameters) :
+class MoveToCompletedWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result {
-        Graph.todoRepo.deleteTodoItem(
+        Graph.todoRepo.moveTodoItemToCompleted(
             inputData.getLong("LIST_ID", -1),
             inputData.getString("ITEM_ID")
         )

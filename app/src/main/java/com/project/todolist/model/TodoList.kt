@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 data class TodoList(
     val title: String = "",
     val todoItems: List<TodoItem> = emptyList(),
+    val completedItems: List<TodoItem> = emptyList(),
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0
 )

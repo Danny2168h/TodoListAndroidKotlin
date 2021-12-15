@@ -182,7 +182,7 @@ fun TodoItemUI(
             .clip(CircleShape)
             .size(20.dp)
             .border(2.dp, WhiteTextColor, CircleShape)
-            .background(if (entry.complete) CheckGreen else TodoItemBackGround))
+            .background(if (entry.markedForCompletion) CheckGreen else TodoItemBackGround))
         {
         }
         Spacer(modifier = Modifier.padding(5.dp))
@@ -483,7 +483,7 @@ fun TopInfoArea(
                     fontFamily = dmSans
                 )
             }
-            Spacer(modifier = Modifier.padding(53.dp, 0.dp))
+            Spacer(modifier = Modifier.padding(45.dp, 0.dp))
             Box(
                 modifier = Modifier
                     .width(120.dp)
