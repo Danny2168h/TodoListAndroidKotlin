@@ -22,4 +22,8 @@
     <string name="clear_changes">clear changes</string>
     <string name="new_todoTitle">New TodoList Title Here</string>
     <string name="top_box">top box </string>
+    <string name="confirm_delete">Confirm Todo List Deletion</string>
+    <string name="items_in_list">There are still todo items in this list do you want to delete?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

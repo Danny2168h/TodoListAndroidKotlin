@@ -8,12 +8,13 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.project.todolist.screens.completed.CompletedScreen
+import com.project.todolist.screens.completed.CompletedScreenViewModel
 import com.project.todolist.screens.entry.EntryDetailedScreen
 import com.project.todolist.screens.main.MainScreen
 import com.project.todolist.screens.main.MainScreenViewModel
 import com.project.todolist.screens.todolist.ListDetailedScreen
 import com.project.todolist.screens.todolist.ListDetailedScreenViewModel
-
 
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
@@ -62,6 +63,13 @@ fun SetUpNavGraph(navigationControl: NavHostController) {
             EntryDetailedScreen(
                 navController = navigationControl,
                 title = entry.arguments?.getString("todo_item")
+            )
+        }
+        composable(
+            route = Screen.CompletedScreen.route
+        ) {
+            CompletedScreen(
+                viewModel = CompletedScreenViewModel(navController = navigationControl),
             )
         }
     }
