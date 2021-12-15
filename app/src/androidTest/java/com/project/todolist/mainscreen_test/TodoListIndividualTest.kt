@@ -8,7 +8,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.project.todolist.MainActivity
 import com.project.todolist.R
-import com.project.todolist.data.TodoList
+import com.project.todolist.model.TodoList
 import com.project.todolist.screens.main.TodoListIndividual
 import org.junit.Before
 import org.junit.Rule

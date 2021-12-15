@@ -9,7 +9,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithText
 import com.project.todolist.MainActivity
 import com.project.todolist.R
-import com.project.todolist.data.TodoList
+import com.project.todolist.model.TodoList
 import com.project.todolist.screens.main.MainScreenMain
 import org.junit.Rule
 import org.junit.Test

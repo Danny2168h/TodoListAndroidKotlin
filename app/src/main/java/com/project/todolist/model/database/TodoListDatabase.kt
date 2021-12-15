@@ -1,12 +1,12 @@
-package com.project.todolist.data.database
+package com.project.todolist.model.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room.databaseBuilder
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.project.todolist.data.Converters
-import com.project.todolist.data.TodoList
+import com.project.todolist.model.Converters
+import com.project.todolist.model.TodoList
 
 @Database(entities = [TodoList::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)

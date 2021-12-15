@@ -7,7 +7,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.project.todolist.MainActivity
 import com.project.todolist.R
-import com.project.todolist.data.TodoList
+import com.project.todolist.model.TodoList
 import com.project.todolist.screens.main.MainScreenMain
 import org.junit.Before
 import org.junit.Rule

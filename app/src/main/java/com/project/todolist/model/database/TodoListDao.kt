@@ -1,7 +1,7 @@
-package com.project.todolist.data.database
+package com.project.todolist.model.database
 
 import androidx.room.*
-import com.project.todolist.data.TodoList
+import com.project.todolist.model.TodoList
 import kotlinx.coroutines.flow.Flow
 
 @Dao

@@ -88,4 +88,5 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2"
     androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2'
+    implementation("androidx.work:work-runtime-ktx:2.7.1")
 }

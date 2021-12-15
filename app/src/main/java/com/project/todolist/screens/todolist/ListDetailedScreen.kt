@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.project.todolist.R
-import com.project.todolist.data.TodoItem
+import com.project.todolist.model.TodoItem
 import com.project.todolist.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -51,6 +51,7 @@ fun ListDetailedScreen(viewModel: ListDetailedScreenViewModel, todoTitle: String
         onClickMainMenu = { viewModel.onClickMainMenu() },
         onClickCompleted = { viewModel.onClickCompleted() },
         onClickCheck = { viewModel.onClickCheck(it) },
+        onTapEntryComplete = { viewModel.onTapEntryComplete(it) }
     )
 }
 
@@ -66,6 +67,7 @@ fun ListDetailedScreenMain(
     onClickMainMenu: () -> Unit,
     onClickCompleted: () -> Unit,
     onClickCheck: (String) -> Unit,
+    onTapEntryComplete: (TodoItem) -> Unit,
 ) {
     TodoListTheme {
         val scaffoldState = rememberBottomSheetScaffoldState()
@@ -107,7 +109,8 @@ fun ListDetailedScreenMain(
                     }
                     TodoListUI(
                         entries = todoList,
-                        onClickEntry = { onClickEntry(it) })
+                        onClickEntry = { onClickEntry(it) },
+                        onTapEntryComplete = { onTapEntryComplete(it) })
                 }
 
             }
@@ -159,9 +162,9 @@ fun AddItemButton(
 @Composable
 fun TodoItemUI(
     entry: TodoItem,
-    onClickEntry: (String) -> Unit
+    onClickEntry: (String) -> Unit,
+    onTapEntryComplete: (TodoItem) -> Unit
 ) {
-    var checked by remember { mutableStateOf(entry.complete) }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
@@ -174,13 +177,12 @@ fun TodoItemUI(
         Spacer(modifier = Modifier.padding(10.dp))
         Box(modifier = Modifier
             .clickable {
-                checked = !checked
-                entry.complete = checked
+                onTapEntryComplete(entry)
             }
             .clip(CircleShape)
             .size(20.dp)
             .border(2.dp, WhiteTextColor, CircleShape)
-            .background(if (checked) CheckGreen else TodoItemBackGround))
+            .background(if (entry.complete) CheckGreen else TodoItemBackGround))
         {
         }
         Spacer(modifier = Modifier.padding(5.dp))
@@ -208,7 +210,8 @@ fun TodoItemUI(
 @Composable
 fun TodoListUI(
     entries: List<TodoItem>,
-    onClickEntry: (String) -> Unit
+    onClickEntry: (String) -> Unit,
+    onTapEntryComplete: (TodoItem) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -226,9 +229,9 @@ fun TodoListUI(
             )
             {
                 items(entries) { entry ->
-                    TodoItemUI(entry) {
-                        onClickEntry(it)
-                    }
+                    TodoItemUI(entry,
+                        onClickEntry = { onClickEntry(it) },
+                        onTapEntryComplete = { onTapEntryComplete(it) })
                 }
             }
         }
