@@ -5,7 +5,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.project.todolist.MainActivity
-import com.project.todolist.data.TodoItem
+import com.project.todolist.model.TodoItem
 import com.project.todolist.screens.todolist.TodoListUI
 import org.junit.Rule
 import org.junit.Test
@@ -30,7 +30,9 @@ class TodoListUITest {
         items.forEach { testTodoList.add(TodoItem(it)) }
         composeTestRule.setContent {
             TodoListUI(
-                onClickEntry = { /*Tested in TodoItemTest*/ }, entries = testTodoList
+                onClickEntry = { /*Tested in TodoItemTest*/ },
+                entries = testTodoList,
+                onTapEntryComplete = { /* Tested elsewhere*/ }
             )
         }
         items.forEach { composeTestRule.onNodeWithText(it).assertIsDisplayed() }

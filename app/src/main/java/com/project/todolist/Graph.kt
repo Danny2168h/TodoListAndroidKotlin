@@ -1,8 +1,8 @@
 package com.project.todolist
 
 import android.content.Context
-import com.project.todolist.data.database.TodoListDatabase
-import com.project.todolist.data.database.TodoListRepository
+import com.project.todolist.model.database.TodoListDatabase
+import com.project.todolist.model.database.TodoListRepository
 
 object Graph {
     lateinit var database: TodoListDatabase

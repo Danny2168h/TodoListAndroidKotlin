@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.project.todolist.Graph
-import com.project.todolist.data.TodoList
-import com.project.todolist.data.database.TodoListRepository
+import com.project.todolist.model.TodoList
+import com.project.todolist.model.database.TodoListRepository
 import com.project.todolist.navigation.Screen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,17 +42,15 @@ class MainScreenViewModel(private val navController: NavController) : ViewModel(
         navController.navigate(Screen.ListDetailedView.route + "/$id" + "/$todoTitle")
     }
 
-    fun onTapSave(title: String) {
-        viewModelScope.launch {
-            todoListRepository.addTodoList(TodoList(title))
-        }
+    fun onTapSave(title: String) = viewModelScope.launch {
+        todoListRepository.addTodoList(TodoList(title))
     }
 
-    fun onTapDelete(id: Long) {
-        viewModelScope.launch {
-            todoListRepository.deleteTodoList(id)
-        }
+
+    fun onTapDelete(id: Long) = viewModelScope.launch {
+        todoListRepository.deleteTodoList(id)
     }
+
 
     data class MainScreenViewState(
         val todoLists: List<TodoList> = emptyList(),

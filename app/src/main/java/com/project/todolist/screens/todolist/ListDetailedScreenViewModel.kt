@@ -4,11 +4,18 @@ package com.project.todolist.screens.todolist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import com.google.common.util.concurrent.ListenableFuture
 import com.project.todolist.Graph
-import com.project.todolist.data.TodoItem
-import com.project.todolist.data.TodoList
-import com.project.todolist.data.database.TodoListRepository
+import com.project.todolist.MainActivity
+import com.project.todolist.model.TodoItem
+import com.project.todolist.model.TodoList
+import com.project.todolist.model.database.TodoListRepository
 import com.project.todolist.navigation.Screen
+import com.project.todolist.screens.todolist.counterremove.RemoveItemWorker
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +23,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeUnit
+
 
 class ListDetailedScreenViewModel(
     private val id: Long,
@@ -87,19 +97,61 @@ class ListDetailedScreenViewModel(
         TODO("Not yet implemented")
     }
 
-    fun onClickCheck(newTitle: String) {
-        viewModelScope.launch(dispatcher) {
-            todoListRepository.updateTodoList(
-                currentList.value.copy(
-                    title = newTitle
-                )
-            )
+    fun onTapEntryComplete(todoItem: TodoItem) = viewModelScope.launch(dispatcher) {
+        todoListRepository.updateTodoItem(
+            id,
+            todoItem.copy(complete = !todoItem.complete, uniqueID = todoItem.uniqueID)
+        )
+        val uniqueID = todoItem.uniqueID
+
+        val workManager = WorkManager.getInstance(MainActivity.applicationContext())
+        if (isWorkScheduled(uniqueID)) {
+            workManager.cancelAllWorkByTag(uniqueID)
+        } else {
+            workManager.cancelAllWorkByTag(uniqueID)
+            val data = Data.Builder()
+            data.putLong("LIST_ID", id)
+            data.putString("ITEM_ID", uniqueID)
+            val worker = OneTimeWorkRequestBuilder<RemoveItemWorker>()
+            worker.setInitialDelay(60, TimeUnit.SECONDS)
+            worker.setInputData(data.build())
+            worker.addTag(uniqueID)
+            workManager.enqueue(worker.build())
         }
     }
+
+    fun onClickCheck(newTitle: String) = viewModelScope.launch(dispatcher) {
+        todoListRepository.updateTodoList(
+            currentList.value.copy(
+                title = newTitle
+            )
+        )
+    }
+
 
     data class ListDetailedScreenViewState(
         val todoList: List<TodoItem> = emptyList(),
         val count: Int = -1,
     )
+
+    private fun isWorkScheduled(tag: String): Boolean {
+        val instance = WorkManager.getInstance(MainActivity.applicationContext())
+        val statuses: ListenableFuture<List<WorkInfo>> = instance.getWorkInfosByTag(tag)
+        return try {
+            var running = false
+            val workInfoList: List<WorkInfo> = statuses.get()
+            for (workInfo in workInfoList) {
+                val state = workInfo.state
+                running = (state == WorkInfo.State.RUNNING) or (state == WorkInfo.State.ENQUEUED)
+            }
+            running
+        } catch (e: ExecutionException) {
+            e.printStackTrace()
+            false
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+            false
+        }
+    }
 
 }

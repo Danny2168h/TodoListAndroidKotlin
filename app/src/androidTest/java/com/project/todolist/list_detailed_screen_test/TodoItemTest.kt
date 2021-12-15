@@ -5,7 +5,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.project.todolist.MainActivity
 import com.project.todolist.R
-import com.project.todolist.data.TodoItem
+import com.project.todolist.model.TodoItem
 import com.project.todolist.screens.todolist.TodoItemUI
 import junit.framework.Assert.assertTrue
 import org.junit.Before
@@ -31,7 +31,9 @@ class TodoItemTest {
         buttonClicked = false
         composeTestRule.setContent {
             TodoItemUI(
-                onClickEntry = { buttonClicked = true }, entry = TodoItem(title)
+                onClickEntry = { buttonClicked = true },
+                entry = TodoItem(title),
+                onTapEntryComplete = { /* Tested elsewhere*/ }
             )
         }
         rightArrow = composeTestRule.onNodeWithTag(
