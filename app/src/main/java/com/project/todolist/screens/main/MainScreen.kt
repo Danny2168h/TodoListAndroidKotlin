@@ -1,9 +1,6 @@
 package com.project.todolist.screens.main
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -78,9 +75,10 @@ fun MainScreenMain(
             },
         ) {
             Scaffold(
-                bottomBar = {
+                floatingActionButton = {
                     AddListButton(scaffoldState = scaffoldState, scope = scope)
                 },
+                floatingActionButtonPosition = FabPosition.End
             ) {
                 Box(
                     modifier = Modifier
@@ -120,7 +118,7 @@ fun AddListUI(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(400.dp)
+            .height(450.dp)
             .background(BlackAddList)
     ) {
         Column(
@@ -169,6 +167,7 @@ fun AddListUI(
             Button(
                 onClick = {
                     OnTapSave(textState)
+                    keyboardController?.hide()
                     scope.launch {
                         scaffoldState.bottomSheetState.apply {
                             if (isCollapsed) expand() else collapse()
@@ -184,7 +183,8 @@ fun AddListUI(
                         text = stringResource(id = R.string.create),
                         fontFamily = dmSans,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
+                        color = if (enabled) BlackTextColor else LightGrey
                     )
                 })
         }
@@ -215,7 +215,6 @@ fun TodoListSelection(
     onClickEntry: (Long, String) -> Unit,
     onClickDelete: (Long) -> Unit
 ) {
-    val pairedLists = separateInto2s(todoLists)
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -223,14 +222,14 @@ fun TodoListSelection(
     ) {
         Column {
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(35.dp),
+                verticalArrangement = Arrangement.spacedBy(25.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
             ) {
-                items(pairedLists) { todoList ->
-                    TodoListPairRow(
+                items(todoLists) { todoList ->
+                    TodoListIndividual(
                         todoList,
                         onClickEntry = { arg1, arg2 -> onClickEntry(arg1, arg2) },
                         onClickDelete = { onClickDelete(it) })
@@ -241,49 +240,27 @@ fun TodoListSelection(
 }
 
 @Composable
-fun TodoListPairRow(
-    pairTodoList: Pair<TodoList, TodoList?>,
-    onClickEntry: (Long, String) -> Unit,
-    onClickDelete: (Long) -> Unit
-) {
-    val pairRows = stringResource(R.string.pair_rows)
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.semantics { testTag = pairRows }) {
-        TodoListIndividual(
-            todoList = pairTodoList.first,
-            onClickEntry = { arg1, arg2 -> onClickEntry(arg1, arg2) },
-            onClickDelete = { onClickDelete(it) })
-        if (pairTodoList.second != null) {
-            Spacer(modifier = Modifier.padding(15.dp, 0.dp))
-            TodoListIndividual(
-                todoList = pairTodoList.second!!,
-                onClickEntry = { arg1, arg2 -> onClickEntry(arg1, arg2) },
-                onClickDelete = { onClickDelete(it) })
-        }
-    }
-}
-
-@Composable
 fun TodoListIndividual(
     todoList: TodoList,
     onClickEntry: (id: Long, title: String) -> Unit,
     onClickDelete: (Long) -> Unit
 ) {
+    val scroll = rememberScrollState(0)
     val openDialog = remember { mutableStateOf(false) }
     val closeIcon = stringResource(R.string.close_icon)
     val individualList = stringResource(R.string.individual_list)
     val todoCount = todoList.todoItems.size
     Box(modifier = Modifier
-        .shadow(2.dp, RoundedCornerShape(20))
-        .size(160.dp, 180.dp)
+        .padding(start = 15.dp, end = 15.dp)
+        .shadow(2.dp, RoundedCornerShape(15))
+        .fillMaxWidth()
+        .sizeIn(minHeight = 100.dp, maxHeight = 175.dp)
         .clickable { onClickEntry(todoList.id, todoList.title) }
         .background(WhiteTextColor)
         .semantics { testTag = individualList }) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.verticalScroll(scroll, reverseScrolling = true)
         ) {
             Spacer(modifier = Modifier.padding(vertical = 5.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
@@ -311,19 +288,26 @@ fun TodoListIndividual(
                 fontSize = 25.sp,
                 color = BlackTextColor,
                 modifier = Modifier
-                    .padding(5.dp)
+                    .padding(horizontal = 20.dp)
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.padding(10.dp))
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp, vertical = 5.dp)
+                    .clip(RoundedCornerShape(100))
+                    .fillMaxWidth()
+                    .height(2.dp)
+                    .background(BlackTextColor)
+            )
             Text(
-                text = "${todoCount} items",
+                text = "$todoCount items",
                 fontFamily = josefinsans,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
                 color = BlackTextColor,
                 modifier = Modifier
-                    .padding(5.dp)
+                    .padding(bottom = 10.dp)
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
@@ -334,18 +318,24 @@ fun TodoListIndividual(
             title = { Text(text = stringResource(R.string.confirm_delete)) },
             text = { Text(text = stringResource(R.string.items_in_list)) },
             confirmButton = {
-                Button(onClick = {
-                    onClickDelete(todoList.id)
-                    openDialog.value = false
-                }) {
-                    Text(text = stringResource(R.string.yes))
+                Button(
+                    onClick = {
+                        onClickDelete(todoList.id)
+                        openDialog.value = false
+                    },
+                    colors = ButtonDefaults.buttonColors(BlackAddList),
+                ) {
+                    Text(text = stringResource(R.string.yes), color = WhiteTextColor)
                 }
             },
             dismissButton = {
-                Button(onClick = {
-                    openDialog.value = false
-                }) {
-                    Text(text = stringResource(R.string.no))
+                Button(
+                    onClick = {
+                        openDialog.value = false
+                    },
+                    colors = ButtonDefaults.buttonColors(BlackAddList),
+                ) {
+                    Text(text = stringResource(R.string.no), color = WhiteTextColor)
                 }
             }
         )
@@ -359,66 +349,34 @@ fun AddListButton(
     scope: CoroutineScope
 ) {
     val addIcon = stringResource(R.string.add_icon)
-    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center)
-    {
-        Box(
-            modifier = Modifier
-                .shadow(20.dp, RoundedCornerShape(20.dp, 20.dp, 0.dp, 0.dp))
-                .background(BlackAddList)
-                .width(120.dp)
-                .height(40.dp)
-                .clickable {
-                    scope.launch {
-                        scaffoldState.bottomSheetState.apply {
-                            if (isCollapsed) expand() else collapse()
-                        }
+    Box(
+        modifier = Modifier
+            .shadow(20.dp, RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp))
+            .background(BlackAddList)
+            .width(120.dp)
+            .height(40.dp)
+            .clickable {
+                scope.launch {
+                    scaffoldState.bottomSheetState.apply {
+                        if (isCollapsed) expand() else collapse()
                     }
-                }, contentAlignment = Alignment.Center
-        ) {
-            Row {
-                Icon(
-                    Icons.Rounded.Add,
-                    contentDescription = null,
-                    tint = WhiteTextColor,
-                    modifier = Modifier.semantics { testTag = addIcon })
-                PaddingValues(10.dp, 0.dp)
-                Text(
-                    text = stringResource(id = R.string.list),
-                    color = WhiteTextColor,
-                    fontFamily = dmSans,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+                }
+            }, contentAlignment = Alignment.Center
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                Icons.Rounded.Add,
+                contentDescription = null,
+                tint = WhiteTextColor,
+                modifier = Modifier.semantics { testTag = addIcon })
+            PaddingValues(10.dp, 0.dp)
+            Text(
+                text = stringResource(id = R.string.list),
+                color = WhiteTextColor,
+                fontFamily = dmSans,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
-
-
-private fun separateInto2s(todoLists: List<TodoList>): List<Pair<TodoList, TodoList?>> {
-    var output = mutableListOf<Pair<TodoList, TodoList?>>()
-    var listLength = todoLists.size
-    var odd = false
-
-    if (listLength % 2 != 0) {
-        listLength -= 1
-        odd = true
-    }
-
-    var currIndex = 0
-    while (currIndex < listLength) {
-        output.add(Pair(todoLists[currIndex], todoLists[currIndex + 1]))
-        currIndex += 2
-    }
-
-    if (odd) {
-        output.add(Pair(todoLists[listLength], null))
-    }
-
-    return output
-}
-
-
-
-
-
