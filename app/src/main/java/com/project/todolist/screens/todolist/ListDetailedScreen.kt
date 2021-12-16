@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -94,7 +95,6 @@ fun ListDetailedScreenMain(
                 Column(verticalArrangement = Arrangement.spacedBy((-28).dp)) {
                     Box(
                         modifier = Modifier
-                            .height(270.dp)
                             .fillMaxWidth()
                             .background(ListDetailedTopInfoArea),
                         contentAlignment = Alignment.TopCenter
@@ -165,6 +165,7 @@ fun TodoItemUI(
     onClickEntry: (String) -> Unit,
     onTapEntryComplete: (TodoItem) -> Unit
 ) {
+    val scroll = rememberScrollState(0)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
@@ -216,7 +217,6 @@ fun TodoListUI(
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(0.dp, 30.dp, 0.dp, 0.dp))
-            .fillMaxHeight()
             .fillMaxWidth()
             .background(ListDetailedViewBackGround)
     ) {
@@ -225,7 +225,9 @@ fun TodoListUI(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
             )
             {
                 items(entries) { entry ->
@@ -253,7 +255,7 @@ fun AddItemUI(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(400.dp)
+            .height(450.dp)
             .background(DarkerBlue)
     ) {
         Column(
@@ -303,6 +305,7 @@ fun AddItemUI(
             Button(
                 onClick = {
                     OnTapSave(textState)
+                    keyboardController?.hide()
                     scope.launch {
                         scaffoldState.bottomSheetState.apply {
                             if (isCollapsed) expand() else collapse()
@@ -318,7 +321,8 @@ fun AddItemUI(
                         text = stringResource(id = R.string.save),
                         fontFamily = dmSans,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
+                        color = if (enabled) BlackTextColor else LightGrey
                     )
                 })
         }
@@ -345,7 +349,7 @@ fun TopInfoArea(
     var previousTextState by remember { mutableStateOf(todoTitle) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(modifier = Modifier.padding(0.dp, 20.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -411,7 +415,6 @@ fun TopInfoArea(
             Box(
                 modifier = Modifier
                     .width(350.dp)
-                    .height(50.dp)
                     .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                 contentAlignment = Alignment.BottomCenter
             ) {
@@ -420,8 +423,6 @@ fun TopInfoArea(
                     fontSize = 20.sp,
                     color = WhiteTextColor,
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth()
                         .padding(vertical = 10.dp),
                     textAlign = TextAlign.Center,
                     fontFamily = josefinsans,
@@ -439,7 +440,6 @@ fun TopInfoArea(
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
                     .width(350.dp)
-                    .height(50.dp)
                     .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                 placeholder = {
                     Text(
@@ -447,7 +447,8 @@ fun TopInfoArea(
                         color = WhiteTextColorFade,
                         textAlign = TextAlign.Center,
                         fontFamily = dmSans,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
                     )
                 },
                 textStyle = TextStyle(
@@ -467,7 +468,6 @@ fun TopInfoArea(
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Spacer(modifier = Modifier.padding(10.dp, 0.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = Calendar.getInstance().time.toString().substring(0, 10),
@@ -483,11 +483,9 @@ fun TopInfoArea(
                     fontFamily = dmSans
                 )
             }
-            Spacer(modifier = Modifier.padding(45.dp, 0.dp))
+            Spacer(modifier = Modifier.padding(horizontal = 15.dp))
             Box(
                 modifier = Modifier
-                    .width(120.dp)
-                    .height(50.dp)
                     .shadow(2.dp, RoundedCornerShape(20))
                     .background(WhiteBackground)
                     .clickable { onClickCompleted() }
@@ -495,8 +493,7 @@ fun TopInfoArea(
                 Text(
                     text = stringResource(id = R.string.completed),
                     Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp, 15.dp),
+                        .padding(10.dp, 10.dp),
                     textAlign = TextAlign.Center,
                     color = ListDetailedViewBackGround,
                     fontSize = 18.sp,
@@ -505,5 +502,6 @@ fun TopInfoArea(
                 )
             }
         }
+        Spacer(modifier = Modifier.padding(27.dp))
     }
 }
