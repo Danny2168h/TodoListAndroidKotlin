@@ -297,7 +297,7 @@ fun TodoListIndividual(
                     .padding(horizontal = 20.dp, vertical = 5.dp)
                     .clip(RoundedCornerShape(100))
                     .fillMaxWidth()
-                    .height(3.dp)
+                    .height(2.dp)
                     .background(BlackTextColor)
             )
             Text(
