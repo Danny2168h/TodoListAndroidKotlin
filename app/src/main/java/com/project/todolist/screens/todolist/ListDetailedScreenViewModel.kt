@@ -116,7 +116,7 @@ class ListDetailedScreenViewModel(
             data.putLong("LIST_ID", id)
             data.putString("ITEM_ID", uniqueID)
             val worker = OneTimeWorkRequestBuilder<MoveToCompletedWorker>()
-            worker.setInitialDelay(5, TimeUnit.SECONDS)
+            worker.setInitialDelay(60, TimeUnit.SECONDS)
             worker.setInputData(data.build())
             worker.addTag(uniqueID)
             workManager.enqueue(worker.build())
