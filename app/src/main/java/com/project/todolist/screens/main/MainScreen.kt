@@ -249,6 +249,8 @@ fun TodoListIndividual(
     val openDialog = remember { mutableStateOf(false) }
     val closeIcon = stringResource(R.string.close_icon)
     val individualList = stringResource(R.string.individual_list)
+    val counter = stringResource(R.string.counter)
+    val blackBar = stringResource(R.string.black_bar)
     val todoCount = todoList.todoItems.size
     Box(modifier = Modifier
         .padding(start = 15.dp, end = 15.dp)
@@ -262,41 +264,49 @@ fun TodoListIndividual(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
-                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp), contentAlignment = Alignment.CenterStart) {
-                        Text(
-                            text = "$todoCount items",
-                            fontFamily = josefinsans,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            color = BlackTextColor,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    Icon(
-                        Icons.Rounded.Close,
-                        contentDescription = null,
-                        tint = BlackTextColor,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 5.dp)
-                            .size(22.dp)
-                            .clickable {
-                                if (todoCount > 0) {
-                                    openDialog.value = true
-                                } else {
-                                    onClickDelete(todoList.id)
-                                }
-                            }
-                            .semantics { testTag = closeIcon }
-                    )
-                }
-                Box(
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Text(
+                    text = "$todoCount items",
+                    fontFamily = josefinsans,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = BlackTextColor,
+                    textAlign = TextAlign.Center,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(100))
-                        .fillMaxWidth()
-                        .height(2.dp)
-                        .background(BlackTextColor)
+                        .align(Alignment.Center)
+                        .semantics { testTag = counter }
                 )
+                Icon(
+                    Icons.Rounded.Close,
+                    contentDescription = null,
+                    tint = BlackTextColor,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 5.dp)
+                        .size(22.dp)
+                        .clickable {
+                            if (todoCount > 0) {
+                                openDialog.value = true
+                            } else {
+                                onClickDelete(todoList.id)
+                            }
+                        }
+                        .semantics { testTag = closeIcon }
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(100))
+                    .fillMaxWidth()
+                    .height(2.dp)
+                    .background(BlackTextColor)
+                    .semantics { testTag = blackBar }
+            )
 
             Text(
                 text = todoList.title,
