@@ -260,27 +260,44 @@ fun TodoListIndividual(
         .semantics { testTag = individualList }) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.verticalScroll(scroll, reverseScrolling = true)
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Spacer(modifier = Modifier.padding(vertical = 5.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                Icon(
-                    Icons.Rounded.Close,
-                    contentDescription = null,
-                    tint = BlackTextColor,
-                    modifier = Modifier
-                        .size(22.dp)
-                        .clickable {
-                            if (todoCount > 0) {
-                                openDialog.value = true
-                            } else {
-                                onClickDelete(todoList.id)
+                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp), contentAlignment = Alignment.CenterStart) {
+                        Text(
+                            text = "$todoCount items",
+                            fontFamily = josefinsans,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            color = BlackTextColor,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    Icon(
+                        Icons.Rounded.Close,
+                        contentDescription = null,
+                        tint = BlackTextColor,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 5.dp)
+                            .size(22.dp)
+                            .clickable {
+                                if (todoCount > 0) {
+                                    openDialog.value = true
+                                } else {
+                                    onClickDelete(todoList.id)
+                                }
                             }
-                        }
-                        .semantics { testTag = closeIcon }
+                            .semantics { testTag = closeIcon }
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(100))
+                        .fillMaxWidth()
+                        .height(2.dp)
+                        .background(BlackTextColor)
                 )
-                Spacer(modifier = Modifier.padding(horizontal = 5.dp))
-            }
+
             Text(
                 text = todoList.title,
                 fontFamily = montserrat,
@@ -288,27 +305,9 @@ fun TodoListIndividual(
                 fontSize = 25.sp,
                 color = BlackTextColor,
                 modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 20.dp, vertical = 5.dp)
-                    .clip(RoundedCornerShape(100))
+                    .padding(10.dp)
                     .fillMaxWidth()
-                    .height(2.dp)
-                    .background(BlackTextColor)
-            )
-            Text(
-                text = "$todoCount items",
-                fontFamily = josefinsans,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                color = BlackTextColor,
-                modifier = Modifier
-                    .padding(bottom = 10.dp)
-                    .fillMaxWidth(),
+                    .verticalScroll(scroll, reverseScrolling = true),
                 textAlign = TextAlign.Center
             )
         }
