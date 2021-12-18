@@ -26,4 +26,6 @@
     <string name="items_in_list">There are still todo items in this list do you want to delete?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="counter">counter</string>
+    <string name="black_bar">black bar</string>
 </resources>
