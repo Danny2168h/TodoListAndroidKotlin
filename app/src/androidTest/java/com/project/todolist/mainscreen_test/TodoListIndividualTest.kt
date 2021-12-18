@@ -36,21 +36,21 @@ class TodoListIndividualTest {
                 onClickEntry = { arg1, arg2 -> twoParam(0, "") /*tested elsewhere*/ },
                 onClickDelete = { /*tested elsewhere*/ }
             )
-            deleteIcon = composeTestRule.onNodeWithTag(
-                composeTestRule.activity.getString(R.string.close_icon),
-                useUnmergedTree = true
-            )
-            individualList =
-                composeTestRule.onNodeWithTag(composeTestRule.activity.getString(R.string.individual_list))
-            counter = composeTestRule.onNodeWithTag(
-                composeTestRule.activity.getString(R.string.counter),
-                useUnmergedTree = true
-            )
-            blackBar = composeTestRule.onNodeWithTag(
-                composeTestRule.activity.getString(R.string.black_bar),
-                useUnmergedTree = true
-            )
         }
+        deleteIcon = composeTestRule.onNodeWithTag(
+            composeTestRule.activity.getString(R.string.close_icon),
+            useUnmergedTree = true
+        )
+        individualList =
+            composeTestRule.onNodeWithTag(composeTestRule.activity.getString(R.string.individual_list))
+        counter = composeTestRule.onNodeWithTag(
+            composeTestRule.activity.getString(R.string.counter),
+            useUnmergedTree = true
+        )
+        blackBar = composeTestRule.onNodeWithTag(
+            composeTestRule.activity.getString(R.string.black_bar),
+            useUnmergedTree = true
+        )
     }
 
     @Test
