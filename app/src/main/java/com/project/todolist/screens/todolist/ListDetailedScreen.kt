@@ -423,7 +423,7 @@ fun TopInfoArea(
                     fontSize = 20.sp,
                     color = WhiteTextColor,
                     modifier = Modifier
-                        .padding(vertical = 10.dp),
+                        .padding(vertical = 10.dp, horizontal = 5.dp),
                     textAlign = TextAlign.Center,
                     fontFamily = josefinsans,
                     fontWeight = FontWeight.Bold
