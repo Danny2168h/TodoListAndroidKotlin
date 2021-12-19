@@ -28,4 +28,8 @@
     <string name="no">No</string>
     <string name="counter">counter</string>
     <string name="black_bar">black bar</string>
+    <string name="go_back">go back</string>
+    <string name="delete">delete</string>
+    <string name="completed_title">Your Completed Items</string>
+    <string name="tasks_completed">tasks completed</string>
 </resources>

@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -47,7 +46,13 @@ fun ListDetailedScreen(viewModel: ListDetailedScreenViewModel, todoTitle: String
         todoList = state.todoList,
         count = state.count,
         todoTitle = todoTitle,
-        onClickEntry = { viewModel.onTapEntry(it) },
+        onClickEntry = { title, description, id ->
+            viewModel.onTapEntry(
+                title = title,
+                description = description,
+                id = id
+            )
+        },
         onTapSave = { viewModel.onTapSave(it) },
         onClickMainMenu = { viewModel.onClickMainMenu() },
         onClickCompleted = { viewModel.onClickCompleted() },
@@ -64,7 +69,7 @@ fun ListDetailedScreenMain(
     todoList: List<TodoItem>,
     count: Int,
     todoTitle: String,
-    onClickEntry: (String) -> Unit,
+    onClickEntry: (String, String, String) -> Unit,
     onClickMainMenu: () -> Unit,
     onClickCompleted: () -> Unit,
     onClickCheck: (String) -> Unit,
@@ -109,7 +114,13 @@ fun ListDetailedScreenMain(
                     }
                     TodoListUI(
                         entries = todoList,
-                        onClickEntry = { onClickEntry(it) },
+                        onClickEntry = { title, description, id ->
+                            onClickEntry(
+                                title,
+                                description,
+                                id
+                            )
+                        },
                         onTapEntryComplete = { onTapEntryComplete(it) })
                 }
 
@@ -162,18 +173,19 @@ fun AddItemButton(
 @Composable
 fun TodoItemUI(
     entry: TodoItem,
-    onClickEntry: (String) -> Unit,
+    onClickEntry: (String, String, String) -> Unit,
     onTapEntryComplete: (TodoItem) -> Unit
 ) {
-    val scroll = rememberScrollState(0)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
         modifier = Modifier
+            .padding(start = 15.dp, end = 15.dp)
             .shadow(2.dp, RoundedCornerShape(20))
-            .size(350.dp, 90.dp)
+            .fillMaxWidth()
+            .sizeIn(minHeight = 100.dp)
             .background(TodoItemBackGround)
-            .clickable { onClickEntry(entry.title) }
+            .clickable { onClickEntry(entry.title, entry.description, entry.uniqueID) }
     ) {
         Spacer(modifier = Modifier.padding(10.dp))
         Box(modifier = Modifier
@@ -183,16 +195,17 @@ fun TodoItemUI(
             .clip(CircleShape)
             .size(20.dp)
             .border(2.dp, WhiteTextColor, CircleShape)
-            .background(if (entry.markedForCompletion) CheckGreen else TodoItemBackGround))
-        {
-        }
+            .background(if (entry.markedForCompletion) CheckGreen else TodoItemBackGround)) {}
         Spacer(modifier = Modifier.padding(5.dp))
         Text(
             text = entry.title,
-            color = WhiteTextColor,
+            fontFamily = montserrat,
+            fontWeight = FontWeight.Bold,
             fontSize = 20.sp,
-            modifier = Modifier.width(255.dp),
-            fontFamily = dmSans, fontWeight = FontWeight.Bold
+            color = WhiteTextColor,
+            modifier = Modifier
+                .width(270.dp)
+                .padding(vertical = 10.dp)
         )
         Spacer(modifier = Modifier.padding(5.dp))
         val arrowRight = stringResource(R.string.arrow_right)
@@ -211,7 +224,7 @@ fun TodoItemUI(
 @Composable
 fun TodoListUI(
     entries: List<TodoItem>,
-    onClickEntry: (String) -> Unit,
+    onClickEntry: (String, String, String) -> Unit,
     onTapEntryComplete: (TodoItem) -> Unit
 ) {
     Box(
@@ -232,7 +245,13 @@ fun TodoListUI(
             {
                 items(entries) { entry ->
                     TodoItemUI(entry,
-                        onClickEntry = { onClickEntry(it) },
+                        onClickEntry = { title, description, id ->
+                            onClickEntry(
+                                title,
+                                description,
+                                id
+                            )
+                        },
                         onTapEntryComplete = { onTapEntryComplete(it) })
                 }
             }

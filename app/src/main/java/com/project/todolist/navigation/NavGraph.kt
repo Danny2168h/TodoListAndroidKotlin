@@ -11,6 +11,7 @@ import androidx.navigation.navArgument
 import com.project.todolist.screens.completed.CompletedScreen
 import com.project.todolist.screens.completed.CompletedScreenViewModel
 import com.project.todolist.screens.entry.EntryDetailedScreen
+import com.project.todolist.screens.entry.EntryDetailedScreenViewModel
 import com.project.todolist.screens.main.MainScreen
 import com.project.todolist.screens.main.MainScreenViewModel
 import com.project.todolist.screens.todolist.ListDetailedScreen
@@ -51,9 +52,23 @@ fun SetUpNavGraph(navigationControl: NavHostController) {
             )
         }
         composable(
-            route = Screen.DetailedView.route + "/{todo_item}",
+            route = Screen.DetailedView.route + "/{todo_title}" + "/{todo_description}" + "/{todo_listID}" + "/{todo_itemID}",
             arguments = listOf(
-                navArgument("todo_item") {
+                navArgument("todo_title") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                    nullable = true
+                },
+                navArgument("todo_description") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                    nullable = true
+                },
+                navArgument("todo_listID") {
+                    type = NavType.LongType
+                    defaultValue = 0
+                },
+                navArgument("todo_itemID") {
                     type = NavType.StringType
                     defaultValue = ""
                     nullable = true
@@ -62,7 +77,13 @@ fun SetUpNavGraph(navigationControl: NavHostController) {
         ) { entry ->
             EntryDetailedScreen(
                 navController = navigationControl,
-                title = entry.arguments?.getString("todo_item")
+                title = entry.arguments?.getString("todo_title"),
+                description = entry.arguments?.getString("todo_description"),
+                viewModel = EntryDetailedScreenViewModel(
+                    navController = navigationControl,
+                    listID = entry.arguments?.getLong("todo_listID"),
+                    itemID = entry.arguments?.getString("todo_itemID")
+                )
             )
         }
         composable(

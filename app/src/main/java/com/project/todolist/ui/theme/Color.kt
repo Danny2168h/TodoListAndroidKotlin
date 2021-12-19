@@ -19,3 +19,6 @@ val ListDetailedTopInfoArea = Color(42, 46, 51, 255)
 val TodoItemBackGround = Color(34, 38, 43, 255)
 val ListDetailedViewBackGround = Color(20, 24, 28, 255)
 val LightGrey = Color(100, 100, 100, 255)
+
+//Completed Screen
+val LightGreyBackground = Color(238, 238, 243, 255)
