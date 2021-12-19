@@ -79,14 +79,14 @@ class ListDetailedScreenViewModel(
         viewModelScope.launch(dispatcher) {
             todoListRepository.updateTodoList(
                 currentList.value.copy(
-                    todoItems = currentList.value.todoItems + TodoItem(title)
+                    todoItems = currentList.value.todoItems + TodoItem(title.trim())
                 )
             )
         }
     }
 
-    fun onTapEntry(it: String) {
-        navController.navigate(Screen.DetailedView.route + "/$it")
+    fun onTapEntry(title: String, description: String, id: String) {
+        navController.navigate(Screen.DetailedView.route + "/$title" + "/$description" + "/${currentList.value.id}" + "/$id")
     }
 
     fun onClickMainMenu() {
@@ -126,7 +126,7 @@ class ListDetailedScreenViewModel(
     fun onClickCheck(newTitle: String) = viewModelScope.launch(dispatcher) {
         todoListRepository.updateTodoList(
             currentList.value.copy(
-                title = newTitle
+                title = newTitle.trim()
             )
         )
     }

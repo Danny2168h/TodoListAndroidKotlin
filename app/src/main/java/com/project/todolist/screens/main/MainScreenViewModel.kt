@@ -43,7 +43,7 @@ class MainScreenViewModel(private val navController: NavController) : ViewModel(
     }
 
     fun onTapSave(title: String) = viewModelScope.launch {
-        todoListRepository.addTodoList(TodoList(title))
+        todoListRepository.addTodoList(TodoList(title.trim()))
     }
 
 

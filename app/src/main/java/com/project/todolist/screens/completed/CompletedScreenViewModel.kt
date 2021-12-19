@@ -60,6 +60,14 @@ class CompletedScreenViewModel(private val navController: NavController) : ViewM
         return completedItems
     }
 
+    fun tapBack() {
+        navController.popBackStack()
+    }
+
+    fun tapCompletedItem() {
+        TODO("Not yet implemented")
+    }
+
     data class CompletedScreenViewModelState(
         val completedTodoItems: List<TodoItem> = emptyList(),
         val count: Int = 0
