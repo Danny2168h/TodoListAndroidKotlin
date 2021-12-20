@@ -32,4 +32,6 @@
     <string name="delete">delete</string>
     <string name="completed_title">Your Completed Items</string>
     <string name="tasks_completed">tasks completed</string>
+    <string name="set_due_date">Set Due Date</string>
+    <string name="set_due_time">Set Due Time</string>
 </resources>

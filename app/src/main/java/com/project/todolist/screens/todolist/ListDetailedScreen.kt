@@ -1,5 +1,7 @@
 package com.project.todolist.screens.todolist
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,6 +21,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -30,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.project.todolist.R
+import com.project.todolist.model.IntToMonth
 import com.project.todolist.model.TodoItem
 import com.project.todolist.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
@@ -229,7 +233,7 @@ fun TodoListUI(
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(0.dp, 30.dp, 0.dp, 0.dp))
+            .clip(RoundedCornerShape(25.dp, 25.dp, 0.dp, 0.dp))
             .fillMaxWidth()
             .background(ListDetailedViewBackGround)
     ) {
@@ -267,14 +271,40 @@ fun AddItemUI(
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope
 ) {
+    val c = Calendar.getInstance()
+    val minute = c.get(Calendar.MINUTE)
+    val hour = c.get(Calendar.HOUR_OF_DAY)
+    val year = c.get(Calendar.YEAR)
+    val month = c.get(Calendar.MONTH)
+    val day = c.get(Calendar.DAY_OF_MONTH)
+
+    val topBox = stringResource(R.string.top_box)
+    val needToDo = stringResource(R.string.what_to_do)
+    val setDueDate = stringResource(R.string.set_due_date)
+    val setDueTime = stringResource(R.string.set_due_time)
+
     var enabled by remember { mutableStateOf(false) }
     var textState by remember { mutableStateOf("") }
-    val topBox = stringResource(R.string.top_box)
-    val needToDo = stringResource(id = R.string.what_to_do)
+    var dateState by remember { mutableStateOf(setDueDate) }
+    var timeState by remember { mutableStateOf(setDueTime) }
+
+    val datePicker = DatePickerDialog(LocalContext.current, R.style.MyDatePickerDialogTheme,
+        { _, year, month, dayOfMonth ->
+            dateState = "$dayOfMonth/${IntToMonth.convertIntMonthToString(month)}/$year"
+        }, year, month, day
+    )
+    datePicker.datePicker.minDate = System.currentTimeMillis() - 1000
+
+    //Send error message saying user cannot set a time in the past, if the current selected day is today, make the hour picker appear after the calendar picker, update time and
+    //everything on button tap of time picker and get time at the end of setting time to make sure that everything is still valid
+
+    val timePicker = TimePickerDialog(LocalContext.current, R.style.MyTimePickerDialogTheme,
+        { _, hour, minute -> timeState = "$hour : $minute" }, hour, minute, false
+    )
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(450.dp)
+            .height(475.dp)
             .background(DarkerBlue)
     ) {
         Column(
@@ -320,7 +350,29 @@ fun AddItemUI(
                 maxLines = 1,
                 colors = TextFieldDefaults.textFieldColors(textColor = WhiteTextColor),
             )
-            Spacer(modifier = Modifier.padding(0.dp, 15.dp))
+            Row(modifier = Modifier.padding(15.dp)) {
+                Text(text = dateState,
+                    modifier = Modifier
+                        .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp))
+                        .clickable { datePicker.show() }
+                        .padding(10.dp),
+                    color = WhiteTextColor,
+                    textAlign = TextAlign.Center,
+                    fontFamily = dmSans,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp)
+                Spacer(modifier = Modifier.padding(horizontal = 10.dp))
+                Text(text = timeState,
+                    modifier = Modifier
+                        .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp))
+                        .clickable { timePicker.show() }
+                        .padding(10.dp),
+                    color = WhiteTextColor,
+                    textAlign = TextAlign.Center,
+                    fontFamily = dmSans,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp)
+            }
             Button(
                 onClick = {
                     OnTapSave(textState)
@@ -401,7 +453,7 @@ fun TopInfoArea(
                 fontFamily = montserrat,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.width(292.dp)
+                modifier = Modifier.width(250.dp)
             )
             if (enabledChangeTitle) {
                 Icon(Icons.Rounded.Check,
