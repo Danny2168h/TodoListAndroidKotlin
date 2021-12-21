@@ -2,6 +2,7 @@
 <resources>
 
     <style name="MyTimePickerDialogTheme" parent="android:Theme.Material.Light.Dialog">
+        <item name="android:windowBackground">@drawable/popup_background</item>
         <item name="android:colorAccent">#FF0463CA</item>
     </style>
 </resources>

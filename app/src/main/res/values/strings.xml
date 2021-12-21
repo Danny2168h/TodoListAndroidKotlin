@@ -34,4 +34,5 @@
     <string name="tasks_completed">tasks completed</string>
     <string name="set_due_date">Set Due Date</string>
     <string name="set_due_time">Set Due Time</string>
+    <string name="invalid_time">Set time at least 5 minutes in the future</string>
 </resources>

@@ -2,6 +2,7 @@ package com.project.todolist.screens.todolist
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,6 +39,7 @@ import com.project.todolist.model.TodoItem
 import com.project.todolist.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.util.*
 
 @ExperimentalComposeUiApi
@@ -271,36 +273,96 @@ fun AddItemUI(
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope
 ) {
-    val c = Calendar.getInstance()
-    val minute = c.get(Calendar.MINUTE)
-    val hour = c.get(Calendar.HOUR_OF_DAY)
-    val year = c.get(Calendar.YEAR)
-    val month = c.get(Calendar.MONTH)
-    val day = c.get(Calendar.DAY_OF_MONTH)
+    var c = Calendar.getInstance()
+
+    var minuteSelected by remember { mutableStateOf(-1) }
+    var hourSelected by remember { mutableStateOf(-1) }
+    var yearSelected by remember { mutableStateOf(c.get(Calendar.YEAR)) }
+    var daySelected by remember { mutableStateOf(c.get(Calendar.DAY_OF_MONTH)) }
+    var monthSelected by remember { mutableStateOf(c.get(Calendar.MONTH)) }
 
     val topBox = stringResource(R.string.top_box)
     val needToDo = stringResource(R.string.what_to_do)
     val setDueDate = stringResource(R.string.set_due_date)
-    val setDueTime = stringResource(R.string.set_due_time)
+    val invalidTime = stringResource(R.string.invalid_time)
 
     var enabled by remember { mutableStateOf(false) }
     var textState by remember { mutableStateOf("") }
     var dateState by remember { mutableStateOf(setDueDate) }
-    var timeState by remember { mutableStateOf(setDueTime) }
 
-    val datePicker = DatePickerDialog(LocalContext.current, R.style.MyDatePickerDialogTheme,
-        { _, year, month, dayOfMonth ->
-            dateState = "$dayOfMonth/${IntToMonth.convertIntMonthToString(month)}/$year"
-        }, year, month, day
+    val appContext = LocalContext.current
+
+    val datePicker = DatePickerDialog(
+        appContext, R.style.MyDatePickerDialogTheme,
+//        { _, year, month, dayOfMonth ->
+//            yearSelected = year
+//            monthSelected = month
+//            daySelected = dayOfMonth
+//        }, yearSelected, monthSelected, daySelected
     )
-    datePicker.datePicker.minDate = System.currentTimeMillis() - 1000
+    datePicker.datePicker.minDate = System.currentTimeMillis() + 5000
+    datePicker.updateDate(yearSelected, monthSelected, daySelected)
 
-    //Send error message saying user cannot set a time in the past, if the current selected day is today, make the hour picker appear after the calendar picker, update time and
-    //everything on button tap of time picker and get time at the end of setting time to make sure that everything is still valid
-
-    val timePicker = TimePickerDialog(LocalContext.current, R.style.MyTimePickerDialogTheme,
-        { _, hour, minute -> timeState = "$hour : $minute" }, hour, minute, false
+    val timePicker = TimePickerDialog(
+        LocalContext.current, R.style.MyTimePickerDialogTheme,
+        { _, hour, minute ->
+            c = Calendar.getInstance()
+            if (isSelectionAfterToday(
+                    c.get(Calendar.DAY_OF_MONTH),
+                    c.get(Calendar.MONTH),
+                    c.get(Calendar.YEAR),
+                    daySelected,
+                    monthSelected,
+                    yearSelected
+                )
+            ) {
+                hourSelected = hour
+                minuteSelected = minute
+                dateState = formatDateString(
+                    daySelected,
+                    monthSelected,
+                    yearSelected,
+                    hourSelected,
+                    minuteSelected,
+                    setDueDate
+                )
+            } else if (isTimeInFuture(
+                    hour,
+                    minute,
+                    c.get(Calendar.HOUR_OF_DAY),
+                    c.get(Calendar.MINUTE)
+                )
+            ) {
+                hourSelected = hour
+                minuteSelected = minute
+                dateState = formatDateString(
+                    daySelected,
+                    monthSelected,
+                    yearSelected,
+                    hourSelected,
+                    minuteSelected,
+                    setDueDate
+                )
+            } else {
+                Toast.makeText(appContext, invalidTime, Toast.LENGTH_LONG).show()
+            }
+        },
+        c.get(Calendar.HOUR_OF_DAY),
+        c.get(Calendar.MINUTE),
+        false
     )
+
+    datePicker.setOnDateSetListener { _, year, month, dayOfMonth ->
+        yearSelected = year
+        monthSelected = month
+        daySelected = dayOfMonth
+
+        c = Calendar.getInstance()
+        val timeAdded = addMinutesToTime(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), 6)
+        timePicker.updateTime(timeAdded.first, timeAdded.second)
+        timePicker.show()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -354,18 +416,10 @@ fun AddItemUI(
                 Text(text = dateState,
                     modifier = Modifier
                         .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp))
-                        .clickable { datePicker.show() }
-                        .padding(10.dp),
-                    color = WhiteTextColor,
-                    textAlign = TextAlign.Center,
-                    fontFamily = dmSans,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp)
-                Spacer(modifier = Modifier.padding(horizontal = 10.dp))
-                Text(text = timeState,
-                    modifier = Modifier
-                        .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp))
-                        .clickable { timePicker.show() }
+                        .clickable {
+                            datePicker.updateDate(yearSelected, monthSelected, daySelected)
+                            datePicker.show()
+                        }
                         .padding(10.dp),
                     color = WhiteTextColor,
                     textAlign = TextAlign.Center,
@@ -575,4 +629,58 @@ fun TopInfoArea(
         }
         Spacer(modifier = Modifier.padding(27.dp))
     }
+}
+
+private fun isSelectionAfterToday(
+    todayDay: Int,
+    todayMonth: Int,
+    todayYear: Int,
+    selectDay: Int,
+    selectMonth: Int,
+    selectYear: Int
+): Boolean {
+    return LocalDate.of(selectYear, selectMonth + 1, selectDay)
+        .isAfter(LocalDate.of(todayYear, todayMonth + 1, todayDay))
+}
+
+private fun isTimeInFuture(
+    selectedHour: Int,
+    selectedMinute: Int,
+    currentHour: Int,
+    currentMinute: Int
+): Boolean {
+    return when {
+        selectedHour > currentHour -> true
+        selectedHour == currentHour -> selectedMinute > currentMinute
+        else -> false
+    }
+}
+
+//Use function to only add times that are less than an hour
+private fun addMinutesToTime(hour: Int, minute: Int, minutesToAdd: Int): Pair<Int, Int> {
+    if (minute + minutesToAdd >= 60) {
+        if (hour + 1 == 24) {
+            return Pair(0, minute + minutesToAdd - 60)
+        } else {
+            return Pair(hour + 1, minute + minutesToAdd - 60)
+        }
+    }
+    return Pair(hour, minute + minutesToAdd)
+
+}
+
+private fun formatDateString(
+    day: Int,
+    month: Int,
+    year: Int,
+    hour: Int,
+    minute: Int,
+    baseText: String
+): String {
+    if (day == -1 || month == -1 || year == -1 || hour == -1 || minute == -1) {
+        return baseText
+    }
+    return "$day/${IntToMonth.convertIntMonthToString(month)}/$year at " +
+            "${if (hour > 12) hour - 12 else if (hour == 0) "12" else hour}:" +
+            "${if (minute < 10) "0$minute" else minute} ${if (hour >= 12) "PM" else "AM"}"
 }
