@@ -1,6 +1,7 @@
 package com.project.todolist
 
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
@@ -33,7 +34,7 @@ class MainActivity : ComponentActivity() {
         window.apply {
             decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         }
-
+        this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         Graph.provide(this)
         setContent {
             val navigationControl = rememberNavController()

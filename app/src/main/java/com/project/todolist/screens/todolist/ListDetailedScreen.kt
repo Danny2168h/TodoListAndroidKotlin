@@ -1,5 +1,8 @@
 package com.project.todolist.screens.todolist
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,6 +22,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -30,10 +34,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.project.todolist.R
+import com.project.todolist.model.IntToMonth
 import com.project.todolist.model.TodoItem
 import com.project.todolist.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.util.*
 
 @ExperimentalComposeUiApi
@@ -229,7 +235,7 @@ fun TodoListUI(
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(0.dp, 30.dp, 0.dp, 0.dp))
+            .clip(RoundedCornerShape(25.dp, 25.dp, 0.dp, 0.dp))
             .fillMaxWidth()
             .background(ListDetailedViewBackGround)
     ) {
@@ -267,14 +273,100 @@ fun AddItemUI(
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope
 ) {
+    var c = Calendar.getInstance()
+
+    var minuteSelected by remember { mutableStateOf(-1) }
+    var hourSelected by remember { mutableStateOf(-1) }
+    var yearSelected by remember { mutableStateOf(c.get(Calendar.YEAR)) }
+    var daySelected by remember { mutableStateOf(c.get(Calendar.DAY_OF_MONTH)) }
+    var monthSelected by remember { mutableStateOf(c.get(Calendar.MONTH)) }
+
+    val topBox = stringResource(R.string.top_box)
+    val needToDo = stringResource(R.string.what_to_do)
+    val setDueDate = stringResource(R.string.set_due_date)
+    val invalidTime = stringResource(R.string.invalid_time)
+
     var enabled by remember { mutableStateOf(false) }
     var textState by remember { mutableStateOf("") }
-    val topBox = stringResource(R.string.top_box)
-    val needToDo = stringResource(id = R.string.what_to_do)
+    var dateState by remember { mutableStateOf(setDueDate) }
+
+    val appContext = LocalContext.current
+
+    val datePicker = DatePickerDialog(
+        appContext, R.style.MyDatePickerDialogTheme,
+//        { _, year, month, dayOfMonth ->
+//            yearSelected = year
+//            monthSelected = month
+//            daySelected = dayOfMonth
+//        }, yearSelected, monthSelected, daySelected
+    )
+    datePicker.datePicker.minDate = System.currentTimeMillis() + 5000
+    datePicker.updateDate(yearSelected, monthSelected, daySelected)
+
+    val timePicker = TimePickerDialog(
+        LocalContext.current, R.style.MyTimePickerDialogTheme,
+        { _, hour, minute ->
+            c = Calendar.getInstance()
+            if (isSelectionAfterToday(
+                    c.get(Calendar.DAY_OF_MONTH),
+                    c.get(Calendar.MONTH),
+                    c.get(Calendar.YEAR),
+                    daySelected,
+                    monthSelected,
+                    yearSelected
+                )
+            ) {
+                hourSelected = hour
+                minuteSelected = minute
+                dateState = formatDateString(
+                    daySelected,
+                    monthSelected,
+                    yearSelected,
+                    hourSelected,
+                    minuteSelected,
+                    setDueDate
+                )
+            } else if (isTimeInFuture(
+                    hour,
+                    minute,
+                    c.get(Calendar.HOUR_OF_DAY),
+                    c.get(Calendar.MINUTE)
+                )
+            ) {
+                hourSelected = hour
+                minuteSelected = minute
+                dateState = formatDateString(
+                    daySelected,
+                    monthSelected,
+                    yearSelected,
+                    hourSelected,
+                    minuteSelected,
+                    setDueDate
+                )
+            } else {
+                Toast.makeText(appContext, invalidTime, Toast.LENGTH_LONG).show()
+            }
+        },
+        c.get(Calendar.HOUR_OF_DAY),
+        c.get(Calendar.MINUTE),
+        false
+    )
+
+    datePicker.setOnDateSetListener { _, year, month, dayOfMonth ->
+        yearSelected = year
+        monthSelected = month
+        daySelected = dayOfMonth
+
+        c = Calendar.getInstance()
+        val timeAdded = addMinutesToTime(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), 6)
+        timePicker.updateTime(timeAdded.first, timeAdded.second)
+        timePicker.show()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(450.dp)
+            .height(475.dp)
             .background(DarkerBlue)
     ) {
         Column(
@@ -320,7 +412,21 @@ fun AddItemUI(
                 maxLines = 1,
                 colors = TextFieldDefaults.textFieldColors(textColor = WhiteTextColor),
             )
-            Spacer(modifier = Modifier.padding(0.dp, 15.dp))
+            Row(modifier = Modifier.padding(15.dp)) {
+                Text(text = dateState,
+                    modifier = Modifier
+                        .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp))
+                        .clickable {
+                            datePicker.updateDate(yearSelected, monthSelected, daySelected)
+                            datePicker.show()
+                        }
+                        .padding(10.dp),
+                    color = WhiteTextColor,
+                    textAlign = TextAlign.Center,
+                    fontFamily = dmSans,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp)
+            }
             Button(
                 onClick = {
                     OnTapSave(textState)
@@ -401,7 +507,7 @@ fun TopInfoArea(
                 fontFamily = montserrat,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.width(292.dp)
+                modifier = Modifier.width(250.dp)
             )
             if (enabledChangeTitle) {
                 Icon(Icons.Rounded.Check,
@@ -523,4 +629,58 @@ fun TopInfoArea(
         }
         Spacer(modifier = Modifier.padding(27.dp))
     }
+}
+
+private fun isSelectionAfterToday(
+    todayDay: Int,
+    todayMonth: Int,
+    todayYear: Int,
+    selectDay: Int,
+    selectMonth: Int,
+    selectYear: Int
+): Boolean {
+    return LocalDate.of(selectYear, selectMonth + 1, selectDay)
+        .isAfter(LocalDate.of(todayYear, todayMonth + 1, todayDay))
+}
+
+private fun isTimeInFuture(
+    selectedHour: Int,
+    selectedMinute: Int,
+    currentHour: Int,
+    currentMinute: Int
+): Boolean {
+    return when {
+        selectedHour > currentHour -> true
+        selectedHour == currentHour -> selectedMinute > currentMinute
+        else -> false
+    }
+}
+
+//Use function to only add times that are less than an hour
+private fun addMinutesToTime(hour: Int, minute: Int, minutesToAdd: Int): Pair<Int, Int> {
+    if (minute + minutesToAdd >= 60) {
+        if (hour + 1 == 24) {
+            return Pair(0, minute + minutesToAdd - 60)
+        } else {
+            return Pair(hour + 1, minute + minutesToAdd - 60)
+        }
+    }
+    return Pair(hour, minute + minutesToAdd)
+
+}
+
+private fun formatDateString(
+    day: Int,
+    month: Int,
+    year: Int,
+    hour: Int,
+    minute: Int,
+    baseText: String
+): String {
+    if (day == -1 || month == -1 || year == -1 || hour == -1 || minute == -1) {
+        return baseText
+    }
+    return "$day/${IntToMonth.convertIntMonthToString(month)}/$year at " +
+            "${if (hour > 12) hour - 12 else if (hour == 0) "12" else hour}:" +
+            "${if (minute < 10) "0$minute" else minute} ${if (hour >= 12) "PM" else "AM"}"
 }

@@ -49,10 +49,12 @@ fun CompletedScreenMain(
     tapCompletedItem: () -> Unit
 ) {
     TodoListTheme() {
-        Box(modifier = Modifier
-            .background(WhiteTextColor)
-            .fillMaxWidth()
-            .fillMaxHeight()) {
+        Box(
+            modifier = Modifier
+                .background(WhiteTextColor)
+                .fillMaxWidth()
+                .fillMaxHeight()
+        ) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 TitleArea(
                     tapBack = { tapBack() },
