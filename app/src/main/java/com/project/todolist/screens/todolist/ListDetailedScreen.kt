@@ -273,13 +273,19 @@ fun AddItemUI(
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope
 ) {
+    val appContext = LocalContext.current
     var c = Calendar.getInstance()
+    val minTimeAhead = 5
 
     var minuteSelected by remember { mutableStateOf(-1) }
     var hourSelected by remember { mutableStateOf(-1) }
-    var yearSelected by remember { mutableStateOf(c.get(Calendar.YEAR)) }
-    var daySelected by remember { mutableStateOf(c.get(Calendar.DAY_OF_MONTH)) }
-    var monthSelected by remember { mutableStateOf(c.get(Calendar.MONTH)) }
+    var yearSelected by remember { mutableStateOf(-1) }
+    var daySelected by remember { mutableStateOf(-1) }
+    var monthSelected by remember { mutableStateOf(-1) }
+
+    var tempMonthSelected by remember { mutableStateOf(-1) }
+    var tempDaySelected by remember { mutableStateOf(-1) }
+    var tempYearSelected by remember { mutableStateOf(-1) }
 
     val topBox = stringResource(R.string.top_box)
     val needToDo = stringResource(R.string.what_to_do)
@@ -290,61 +296,47 @@ fun AddItemUI(
     var textState by remember { mutableStateOf("") }
     var dateState by remember { mutableStateOf(setDueDate) }
 
-    val appContext = LocalContext.current
-
-    val datePicker = DatePickerDialog(
-        appContext, R.style.MyDatePickerDialogTheme,
-//        { _, year, month, dayOfMonth ->
-//            yearSelected = year
-//            monthSelected = month
-//            daySelected = dayOfMonth
-//        }, yearSelected, monthSelected, daySelected
-    )
-    datePicker.datePicker.minDate = System.currentTimeMillis() + 5000
-    datePicker.updateDate(yearSelected, monthSelected, daySelected)
+    val errorTime = Toast.makeText(appContext, invalidTime, Toast.LENGTH_LONG)
+    val datePicker = DatePickerDialog(appContext, R.style.MyDatePickerDialogTheme)
 
     val timePicker = TimePickerDialog(
         LocalContext.current, R.style.MyTimePickerDialogTheme,
         { _, hour, minute ->
             c = Calendar.getInstance()
-            if (isSelectionAfterToday(
-                    c.get(Calendar.DAY_OF_MONTH),
-                    c.get(Calendar.MONTH),
-                    c.get(Calendar.YEAR),
-                    daySelected,
-                    monthSelected,
-                    yearSelected
-                )
-            ) {
-                hourSelected = hour
-                minuteSelected = minute
-                dateState = formatDateString(
-                    daySelected,
-                    monthSelected,
-                    yearSelected,
-                    hourSelected,
-                    minuteSelected,
-                    setDueDate
-                )
-            } else if (isTimeInFuture(
-                    hour,
-                    minute,
-                    c.get(Calendar.HOUR_OF_DAY),
-                    c.get(Calendar.MINUTE)
-                )
-            ) {
-                hourSelected = hour
-                minuteSelected = minute
-                dateState = formatDateString(
-                    daySelected,
-                    monthSelected,
-                    yearSelected,
-                    hourSelected,
-                    minuteSelected,
-                    setDueDate
-                )
-            } else {
-                Toast.makeText(appContext, invalidTime, Toast.LENGTH_LONG).show()
+            when {
+                isSelectionAfterToday(tempDaySelected, tempMonthSelected, tempYearSelected) -> {
+                    yearSelected = tempYearSelected
+                    monthSelected = tempMonthSelected
+                    daySelected = tempDaySelected
+                    hourSelected = hour
+                    minuteSelected = minute
+                    dateState = formatDateString(
+                        daySelected,
+                        monthSelected,
+                        yearSelected,
+                        hourSelected,
+                        minuteSelected,
+                        setDueDate
+                    )
+                }
+                isTimeInFuture(hour, minute, minTimeAhead) -> {
+                    yearSelected = tempYearSelected
+                    monthSelected = tempMonthSelected
+                    daySelected = tempDaySelected
+                    hourSelected = hour
+                    minuteSelected = minute
+                    dateState = formatDateString(
+                        daySelected,
+                        monthSelected,
+                        yearSelected,
+                        hourSelected,
+                        minuteSelected,
+                        setDueDate
+                    )
+                }
+                else -> {
+                    errorTime.show()
+                }
             }
         },
         c.get(Calendar.HOUR_OF_DAY),
@@ -353,13 +345,21 @@ fun AddItemUI(
     )
 
     datePicker.setOnDateSetListener { _, year, month, dayOfMonth ->
-        yearSelected = year
-        monthSelected = month
-        daySelected = dayOfMonth
+        tempYearSelected = year
+        tempMonthSelected = month
+        tempDaySelected = dayOfMonth
 
         c = Calendar.getInstance()
-        val timeAdded = addMinutesToTime(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), 6)
-        timePicker.updateTime(timeAdded.first, timeAdded.second)
+        if (hourSelected == -1 || minuteSelected == -1) {
+            val timeAdded = addMinutesToTime(
+                c.get(Calendar.HOUR_OF_DAY),
+                c.get(Calendar.MINUTE),
+                minTimeAhead + 1
+            )
+            timePicker.updateTime(timeAdded.first, timeAdded.second)
+        } else {
+            timePicker.updateTime(hourSelected, minuteSelected)
+        }
         timePicker.show()
     }
 
@@ -417,7 +417,17 @@ fun AddItemUI(
                     modifier = Modifier
                         .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp))
                         .clickable {
-                            datePicker.updateDate(yearSelected, monthSelected, daySelected)
+                            datePicker.datePicker.minDate =
+                                System.currentTimeMillis() + minTimeAhead * 1000
+                            if (yearSelected == -1 || monthSelected == -1 || daySelected == -1) {
+                                datePicker.updateDate(
+                                    c.get(Calendar.YEAR),
+                                    c.get(Calendar.MONTH),
+                                    c.get(Calendar.DAY_OF_MONTH)
+                                )
+                            } else {
+                                datePicker.updateDate(yearSelected, monthSelected, daySelected)
+                            }
                             datePicker.show()
                         }
                         .padding(10.dp),
@@ -429,14 +439,18 @@ fun AddItemUI(
             }
             Button(
                 onClick = {
-                    OnTapSave(textState)
-                    keyboardController?.hide()
-                    scope.launch {
-                        scaffoldState.bottomSheetState.apply {
-                            if (isCollapsed) expand() else collapse()
+                    if (isTimeInFuture(hourSelected, minuteSelected, minTimeAhead)) {
+                        OnTapSave(textState)
+                        keyboardController?.hide()
+                        scope.launch {
+                            scaffoldState.bottomSheetState.apply {
+                                if (isCollapsed) expand() else collapse()
+                            }
                         }
+                        textState = ""
+                    } else {
+                        errorTime.show()
                     }
-                    textState = ""
                 },
                 enabled = enabled,
                 shape = RoundedCornerShape(20),
@@ -632,26 +646,32 @@ fun TopInfoArea(
 }
 
 private fun isSelectionAfterToday(
-    todayDay: Int,
-    todayMonth: Int,
-    todayYear: Int,
     selectDay: Int,
     selectMonth: Int,
     selectYear: Int
 ): Boolean {
+    val c = Calendar.getInstance()
     return LocalDate.of(selectYear, selectMonth + 1, selectDay)
-        .isAfter(LocalDate.of(todayYear, todayMonth + 1, todayDay))
+        .isAfter(
+            LocalDate.of(
+                c.get(Calendar.YEAR),
+                c.get(Calendar.MONTH) + 1,
+                c.get(Calendar.DAY_OF_MONTH)
+            )
+        )
 }
 
 private fun isTimeInFuture(
     selectedHour: Int,
     selectedMinute: Int,
-    currentHour: Int,
-    currentMinute: Int
+    minTimeAhead: Int
 ): Boolean {
+    val c = Calendar.getInstance()
+    val newTime =
+        addMinutesToTime(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), minTimeAhead)
     return when {
-        selectedHour > currentHour -> true
-        selectedHour == currentHour -> selectedMinute > currentMinute
+        selectedHour > newTime.first -> true
+        selectedHour == newTime.first -> selectedMinute > newTime.second
         else -> false
     }
 }
@@ -659,10 +679,10 @@ private fun isTimeInFuture(
 //Use function to only add times that are less than an hour
 private fun addMinutesToTime(hour: Int, minute: Int, minutesToAdd: Int): Pair<Int, Int> {
     if (minute + minutesToAdd >= 60) {
-        if (hour + 1 == 24) {
-            return Pair(0, minute + minutesToAdd - 60)
+        return if (hour + 1 == 24) {
+            Pair(0, minute + minutesToAdd - 60)
         } else {
-            return Pair(hour + 1, minute + minutesToAdd - 60)
+            Pair(hour + 1, minute + minutesToAdd - 60)
         }
     }
     return Pair(hour, minute + minutesToAdd)
