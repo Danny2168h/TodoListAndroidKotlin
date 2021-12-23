@@ -31,7 +31,7 @@ class TodoItemTest {
         buttonClicked = false
         composeTestRule.setContent {
             TodoItemUI(
-                onClickEntry = { buttonClicked = true },
+                onClickEntry = { arg1, arg2, arg3 -> buttonClicked = true },
                 entry = TodoItem(title),
                 onTapEntryComplete = { /* Tested elsewhere*/ }
             )

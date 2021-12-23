@@ -30,7 +30,7 @@ class TodoListUITest {
         items.forEach { testTodoList.add(TodoItem(it)) }
         composeTestRule.setContent {
             TodoListUI(
-                onClickEntry = { /*Tested in TodoItemTest*/ },
+                onClickEntry = { arg1, arg2, arg3 -> /*Tested in TodoItemTest*/ },
                 entries = testTodoList,
                 onTapEntryComplete = { /* Tested elsewhere*/ }
             )
