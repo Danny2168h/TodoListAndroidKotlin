@@ -85,18 +85,15 @@ class ListDetailedScreenViewModel(
                     todoItems = currentList.value.todoItems + item
                 )
             )
-            val dueDate = SimpleDateFormat("dd/MM/yyyy hh:mm").parse(itemDueTime)
+            val dueDate = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(itemDueTime)
             val difference = (dueDate.time / 1000) - (System.currentTimeMillis() / 1000)
-
-            println(System.currentTimeMillis() / 1000)
-            println(dueDate.time / 1000)
-            println(difference)
 
             val workManager = WorkManager.getInstance(MainActivity.applicationContext())
             val data = Data.Builder()
             data.putLong("LIST_ID", id)
             data.putString("ITEM_ID", item.uniqueID)
             data.putString("DUE_DATE", itemDueTime)
+
             val worker = OneTimeWorkRequestBuilder<NotificationWorker>()
             worker.setInitialDelay(difference, TimeUnit.SECONDS)
             worker.setInputData(data.build())

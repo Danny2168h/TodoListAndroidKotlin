@@ -8,6 +8,7 @@ import com.project.todolist.Graph
 class MoveToCompletedWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result {
+        Graph.provide(this.applicationContext)
         Graph.todoRepo.moveTodoItemToCompleted(
             inputData.getLong("LIST_ID", -1),
             inputData.getString("ITEM_ID")

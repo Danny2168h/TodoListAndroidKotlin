@@ -275,7 +275,7 @@ fun AddItemUI(
 ) {
     val appContext = LocalContext.current
     var c = Calendar.getInstance()
-    val minTimeAhead = 1
+    val minTimeAhead = 5
 
     var minuteSelected by remember { mutableStateOf(-1) }
     var hourSelected by remember { mutableStateOf(-1) }
@@ -405,7 +405,7 @@ fun AddItemUI(
                         .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp))
                         .clickable {
                             datePicker.datePicker.minDate =
-                                System.currentTimeMillis() + minTimeAhead * 1000
+                                System.currentTimeMillis() + minTimeAhead * 300 * 1000
                             if (yearSelected == -1 || monthSelected == -1 || daySelected == -1) {
                                 datePicker.updateDate(
                                     c.get(Calendar.YEAR),
