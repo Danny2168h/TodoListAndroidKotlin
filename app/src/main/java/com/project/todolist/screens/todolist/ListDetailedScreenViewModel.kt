@@ -88,10 +88,6 @@ class ListDetailedScreenViewModel(
             val dueDate = SimpleDateFormat("dd/MM/yyyy hh:mm").parse(itemDueTime)
             val difference = (dueDate.time / 1000) - (System.currentTimeMillis() / 1000)
 
-            println(System.currentTimeMillis() / 1000)
-            println(dueDate.time / 1000)
-            println(difference)
-
             val workManager = WorkManager.getInstance(MainActivity.applicationContext())
             val data = Data.Builder()
             data.putLong("LIST_ID", id)
@@ -100,7 +96,7 @@ class ListDetailedScreenViewModel(
             val worker = OneTimeWorkRequestBuilder<NotificationWorker>()
             worker.setInitialDelay(difference, TimeUnit.SECONDS)
             worker.setInputData(data.build())
-            worker.addTag(item.uniqueID)
+            //worker.addTag(item.uniqueID)
             workManager.enqueue(worker.build())
 
         }
@@ -137,7 +133,7 @@ class ListDetailedScreenViewModel(
             data.putLong("LIST_ID", id)
             data.putString("ITEM_ID", uniqueID)
             val worker = OneTimeWorkRequestBuilder<MoveToCompletedWorker>()
-            worker.setInitialDelay(60, TimeUnit.SECONDS)
+            worker.setInitialDelay(5, TimeUnit.SECONDS)
             worker.setInputData(data.build())
             worker.addTag(uniqueID)
             workManager.enqueue(worker.build())

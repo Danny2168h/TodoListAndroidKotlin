@@ -17,6 +17,7 @@ class NotificationWorker(appContext: Context, workerParams: WorkerParameters) :
         val itemIDasInt = UUID.fromString(itemID!!).leastSignificantBits.toInt()
         val listID = inputData.getLong("LIST_ID", -1)
 
+        Graph.provide(MainActivity.applicationContext())
         val todoItem = Graph.todoRepo.getListWithID(listID).todoItems.find { it.uniqueID == itemID }
 
         var builder = NotificationCompat.Builder(
@@ -24,11 +25,11 @@ class NotificationWorker(appContext: Context, workerParams: WorkerParameters) :
             MainActivity.EXPIRED_CHANNEL_ID
         )
             .setSmallIcon(R.drawable.mountains_darkened)
-            .setContentTitle(todoItem!!.title)
-            .setContentText("Your Todo item has expired!")
+            .setContentTitle("Your Todo item has expired!")
+            .setContentText("Please check: ${todoItem!!.title}")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
 
-        with(NotificationManagerCompat.from(MainActivity.applicationContext())) {
+        with(NotificationManagerCompat.from(this.applicationContext)) {
             notify(itemIDasInt, builder.build())
         }
         return Result.success()
