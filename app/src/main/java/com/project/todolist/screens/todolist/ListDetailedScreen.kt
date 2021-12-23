@@ -59,7 +59,7 @@ fun ListDetailedScreen(viewModel: ListDetailedScreenViewModel, todoTitle: String
                 id = id
             )
         },
-        onTapSave = { viewModel.onTapSave(it) },
+        onTapSave = { itemTitle, itemDueTime -> viewModel.onTapSave(itemTitle, itemDueTime) },
         onClickMainMenu = { viewModel.onClickMainMenu() },
         onClickCompleted = { viewModel.onClickCompleted() },
         onClickCheck = { viewModel.onClickCheck(it) },
@@ -71,7 +71,7 @@ fun ListDetailedScreen(viewModel: ListDetailedScreenViewModel, todoTitle: String
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ListDetailedScreenMain(
-    onTapSave: (String) -> Unit,
+    onTapSave: (String, String) -> Unit,
     todoList: List<TodoItem>,
     count: Int,
     todoTitle: String,
@@ -91,7 +91,7 @@ fun ListDetailedScreenMain(
             sheetElevation = 10.dp,
             sheetContent = {
                 AddItemUI(
-                    OnTapSave = { onTapSave(it) },
+                    onTapSave = { itemTitle, itemDueTime -> onTapSave(itemTitle, itemDueTime) },
                     scope = scope,
                     scaffoldState = scaffoldState
                 )
@@ -269,13 +269,13 @@ fun TodoListUI(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AddItemUI(
-    OnTapSave: (String) -> Unit,
+    onTapSave: (String, String) -> Unit,
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope
 ) {
     val appContext = LocalContext.current
     var c = Calendar.getInstance()
-    val minTimeAhead = 5
+    val minTimeAhead = 1
 
     var minuteSelected by remember { mutableStateOf(-1) }
     var hourSelected by remember { mutableStateOf(-1) }
@@ -303,40 +303,27 @@ fun AddItemUI(
         LocalContext.current, R.style.MyTimePickerDialogTheme,
         { _, hour, minute ->
             c = Calendar.getInstance()
-            when {
-                isSelectionAfterToday(tempDaySelected, tempMonthSelected, tempYearSelected) -> {
-                    yearSelected = tempYearSelected
-                    monthSelected = tempMonthSelected
-                    daySelected = tempDaySelected
-                    hourSelected = hour
-                    minuteSelected = minute
-                    dateState = formatDateString(
-                        daySelected,
-                        monthSelected,
-                        yearSelected,
-                        hourSelected,
-                        minuteSelected,
-                        setDueDate
-                    )
-                }
-                isTimeInFuture(hour, minute, minTimeAhead) -> {
-                    yearSelected = tempYearSelected
-                    monthSelected = tempMonthSelected
-                    daySelected = tempDaySelected
-                    hourSelected = hour
-                    minuteSelected = minute
-                    dateState = formatDateString(
-                        daySelected,
-                        monthSelected,
-                        yearSelected,
-                        hourSelected,
-                        minuteSelected,
-                        setDueDate
-                    )
-                }
-                else -> {
-                    errorTime.show()
-                }
+            if (!isSelectionAfterToday(
+                    tempDaySelected,
+                    tempMonthSelected,
+                    tempYearSelected
+                ) && !isTimeInFuture(hour, minute, minTimeAhead)
+            ) {
+                errorTime.show()
+            } else {
+                yearSelected = tempYearSelected
+                monthSelected = tempMonthSelected
+                daySelected = tempDaySelected
+                hourSelected = hour
+                minuteSelected = minute
+                dateState = formatDateString(
+                    daySelected,
+                    monthSelected,
+                    yearSelected,
+                    hourSelected,
+                    minuteSelected,
+                    setDueDate
+                )
             }
         },
         c.get(Calendar.HOUR_OF_DAY),
@@ -439,8 +426,18 @@ fun AddItemUI(
             }
             Button(
                 onClick = {
-                    if (isTimeInFuture(hourSelected, minuteSelected, minTimeAhead)) {
-                        OnTapSave(textState)
+                    if (daySelected == -1 || !isSelectionAfterToday(
+                            daySelected,
+                            monthSelected,
+                            yearSelected
+                        ) && !isTimeInFuture(hourSelected, minuteSelected, minTimeAhead)
+                    ) {
+                        errorTime.show()
+                    } else {
+                        onTapSave(
+                            textState,
+                            "$daySelected/${monthSelected + 1}/$yearSelected $hourSelected:$minuteSelected"
+                        )
                         keyboardController?.hide()
                         scope.launch {
                             scaffoldState.bottomSheetState.apply {
@@ -448,8 +445,12 @@ fun AddItemUI(
                             }
                         }
                         textState = ""
-                    } else {
-                        errorTime.show()
+                        dateState = setDueDate
+                        daySelected = -1
+                        monthSelected = -1
+                        yearSelected = -1
+                        minuteSelected = -1
+                        hourSelected = -1
                     }
                 },
                 enabled = enabled,

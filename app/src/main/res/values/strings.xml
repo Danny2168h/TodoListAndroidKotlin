@@ -35,4 +35,6 @@
     <string name="set_due_date">Set Due Date</string>
     <string name="set_due_time">Set Due Time</string>
     <string name="invalid_time">Set time more than 5 minutes in the future</string>
+    <string name="channel_name">TodoExpiry</string>
+    <string name="channel_description">Notification sent for expired todo item</string>
 </resources>

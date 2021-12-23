@@ -1,4 +1,4 @@
-package com.project.todolist.screens.todolist.counterremove
+package com.project.todolist.screens.todolist.threadWorkers
 
 import android.content.Context
 import androidx.work.CoroutineWorker
