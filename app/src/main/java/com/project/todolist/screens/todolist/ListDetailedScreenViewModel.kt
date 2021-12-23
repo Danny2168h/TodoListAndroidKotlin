@@ -15,7 +15,8 @@ import com.project.todolist.model.TodoItem
 import com.project.todolist.model.TodoList
 import com.project.todolist.model.database.TodoListRepository
 import com.project.todolist.navigation.Screen
-import com.project.todolist.screens.todolist.counterremove.MoveToCompletedWorker
+import com.project.todolist.screens.todolist.threadWorkers.MoveToCompletedWorker
+import com.project.todolist.screens.todolist.threadWorkers.NotificationWorker
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
@@ -75,13 +77,32 @@ class ListDetailedScreenViewModel(
         }
     }
 
-    fun onTapSave(title: String) {
+    fun onTapSave(title: String, itemDueTime: String) {
         viewModelScope.launch(dispatcher) {
+            val item = TodoItem(title.trim())
             todoListRepository.updateTodoList(
                 currentList.value.copy(
-                    todoItems = currentList.value.todoItems + TodoItem(title.trim())
+                    todoItems = currentList.value.todoItems + item
                 )
             )
+            val dueDate = SimpleDateFormat("dd/MM/yyyy hh:mm").parse(itemDueTime)
+            val difference = (dueDate.time / 1000) - (System.currentTimeMillis() / 1000)
+
+            println(System.currentTimeMillis() / 1000)
+            println(dueDate.time / 1000)
+            println(difference)
+
+            val workManager = WorkManager.getInstance(MainActivity.applicationContext())
+            val data = Data.Builder()
+            data.putLong("LIST_ID", id)
+            data.putString("ITEM_ID", item.uniqueID)
+            data.putString("DUE_DATE", itemDueTime)
+            val worker = OneTimeWorkRequestBuilder<NotificationWorker>()
+            worker.setInitialDelay(difference, TimeUnit.SECONDS)
+            worker.setInputData(data.build())
+            worker.addTag(item.uniqueID)
+            workManager.enqueue(worker.build())
+
         }
     }
 
