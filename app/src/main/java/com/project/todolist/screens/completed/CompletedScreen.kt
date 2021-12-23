@@ -165,7 +165,7 @@ fun TitleArea(
                     fontFamily = montserrat,
                     fontWeight = FontWeight.ExtraBold,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.width(292.dp)
+                    modifier = Modifier.width(250.dp)
                 )
                 if (enabledDeleteLists) {
                     Icon(

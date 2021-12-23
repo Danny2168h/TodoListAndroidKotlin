@@ -17,11 +17,11 @@ class NotificationWorker(appContext: Context, workerParams: WorkerParameters) :
         val itemIDasInt = UUID.fromString(itemID!!).leastSignificantBits.toInt()
         val listID = inputData.getLong("LIST_ID", -1)
 
-        Graph.provide(MainActivity.applicationContext())
+        Graph.provide(this.applicationContext)
         val todoItem = Graph.todoRepo.getListWithID(listID).todoItems.find { it.uniqueID == itemID }
 
         var builder = NotificationCompat.Builder(
-            MainActivity.applicationContext(),
+            this.applicationContext,
             MainActivity.EXPIRED_CHANNEL_ID
         )
             .setSmallIcon(R.drawable.mountains_darkened)
