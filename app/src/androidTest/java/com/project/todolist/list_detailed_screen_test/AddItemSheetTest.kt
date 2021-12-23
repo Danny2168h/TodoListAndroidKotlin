@@ -34,7 +34,7 @@ class AddItemSheetTest {
             ListDetailedScreenMain(
                 todoList = mutableListOf(),
                 count = 0,
-                onClickEntry = {/* Tested elsewhere */ },
+                onClickEntry = { arg1, arg2, arg3 -> /* Tested elsewhere */ },
                 onTapSave = { clicked = true },
                 todoTitle = "",
                 onClickCompleted = {/* Tested elsewhere */ },

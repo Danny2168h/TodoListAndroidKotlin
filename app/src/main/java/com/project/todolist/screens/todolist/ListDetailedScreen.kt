@@ -645,30 +645,26 @@ fun TopInfoArea(
     }
 }
 
-private fun isSelectionAfterToday(
+fun isSelectionAfterToday(
     selectDay: Int,
     selectMonth: Int,
-    selectYear: Int
+    selectYear: Int,
+    currentDay: Int = Calendar.getInstance().get(Calendar.DAY_OF_MONTH),
+    currentMonth: Int = Calendar.getInstance().get(Calendar.MONTH),
+    currentYear: Int = Calendar.getInstance().get(Calendar.YEAR)
 ): Boolean {
-    val c = Calendar.getInstance()
     return LocalDate.of(selectYear, selectMonth + 1, selectDay)
-        .isAfter(
-            LocalDate.of(
-                c.get(Calendar.YEAR),
-                c.get(Calendar.MONTH) + 1,
-                c.get(Calendar.DAY_OF_MONTH)
-            )
-        )
+        .isAfter(LocalDate.of(currentYear, currentMonth + 1, currentDay))
 }
 
-private fun isTimeInFuture(
+fun isTimeInFuture(
     selectedHour: Int,
     selectedMinute: Int,
-    minTimeAhead: Int
+    minTimeAhead: Int,
+    currentHour: Int = Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
+    currentMinute: Int = Calendar.getInstance().get(Calendar.MINUTE)
 ): Boolean {
-    val c = Calendar.getInstance()
-    val newTime =
-        addMinutesToTime(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), minTimeAhead)
+    val newTime = addMinutesToTime(currentHour, currentMinute, minTimeAhead)
     return when {
         selectedHour > newTime.first -> true
         selectedHour == newTime.first -> selectedMinute > newTime.second
@@ -677,7 +673,7 @@ private fun isTimeInFuture(
 }
 
 //Use function to only add times that are less than an hour
-private fun addMinutesToTime(hour: Int, minute: Int, minutesToAdd: Int): Pair<Int, Int> {
+fun addMinutesToTime(hour: Int, minute: Int, minutesToAdd: Int): Pair<Int, Int> {
     if (minute + minutesToAdd >= 60) {
         return if (hour + 1 == 24) {
             Pair(0, minute + minutesToAdd - 60)
@@ -689,7 +685,7 @@ private fun addMinutesToTime(hour: Int, minute: Int, minutesToAdd: Int): Pair<In
 
 }
 
-private fun formatDateString(
+fun formatDateString(
     day: Int,
     month: Int,
     year: Int,
