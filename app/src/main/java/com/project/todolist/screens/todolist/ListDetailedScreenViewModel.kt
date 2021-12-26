@@ -97,7 +97,7 @@ class ListDetailedScreenViewModel(
             val worker = OneTimeWorkRequestBuilder<NotificationWorker>()
             worker.setInitialDelay(difference, TimeUnit.SECONDS)
             worker.setInputData(data.build())
-            worker.addTag(item.uniqueID)
+            worker.addTag(item.notificationID)
             workManager.enqueue(worker.build())
 
         }
@@ -124,6 +124,7 @@ class ListDetailedScreenViewModel(
             )
         )
         val uniqueID = todoItem.uniqueID
+        val notificationID = todoItem.notificationID
 
         val workManager = WorkManager.getInstance(MainActivity.applicationContext())
         if (isWorkScheduled(uniqueID)) {
@@ -133,6 +134,7 @@ class ListDetailedScreenViewModel(
             val data = Data.Builder()
             data.putLong("LIST_ID", id)
             data.putString("ITEM_ID", uniqueID)
+            data.putString("NOTIF_ID", notificationID)
             val worker = OneTimeWorkRequestBuilder<MoveToCompletedWorker>()
             worker.setInitialDelay(60, TimeUnit.SECONDS)
             worker.setInputData(data.build())

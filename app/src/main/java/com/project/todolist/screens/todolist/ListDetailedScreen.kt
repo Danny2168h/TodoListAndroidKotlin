@@ -275,7 +275,7 @@ fun AddItemUI(
 ) {
     val appContext = LocalContext.current
     var c = Calendar.getInstance()
-    val minTimeAhead = 5
+    val minTimeAhead = 1
 
     var minuteSelected by remember { mutableStateOf(-1) }
     var hourSelected by remember { mutableStateOf(-1) }
