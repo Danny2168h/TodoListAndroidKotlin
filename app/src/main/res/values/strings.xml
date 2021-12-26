@@ -37,4 +37,5 @@
     <string name="invalid_time">Set time more than 5 minutes in the future</string>
     <string name="channel_name">TodoExpiry</string>
     <string name="channel_description">Notification sent for expired todo item</string>
+    <string name="arrow_back">arrow back</string>
 </resources>
