@@ -29,7 +29,7 @@
     <string name="counter">counter</string>
     <string name="black_bar">black bar</string>
     <string name="go_back">go back</string>
-    <string name="delete">delete</string>
+    <string name="delete">Delete</string>
     <string name="completed_title">Your Completed Items</string>
     <string name="tasks_completed">tasks completed</string>
     <string name="set_due_date">Set Due Date</string>
@@ -38,4 +38,7 @@
     <string name="channel_name">TodoExpiry</string>
     <string name="channel_description">Notification sent for expired todo item</string>
     <string name="arrow_back">arrow back</string>
+    <string name="new_itemTitle">New Title For Todo Item</string>
+    <string name="add_description_toTodo">Add a description to your todo item</string>
+    <string name="delete_forever">delete forever</string>
 </resources>

@@ -99,7 +99,6 @@ class ListDetailedScreenViewModel(
             worker.setInputData(data.build())
             worker.addTag(item.notificationID)
             workManager.enqueue(worker.build())
-
         }
     }
 
