@@ -13,6 +13,7 @@ class DeleteItemWorker(appContext: Context, workerParams: WorkerParameters) :
             inputData.getLong("LIST_ID", -1),
             inputData.getString("ITEM_ID")
         )
+        this.applicationContext.deleteFile("${inputData.getString("ITEM_ID")}.jpeg")
         return Result.success()
     }
 }

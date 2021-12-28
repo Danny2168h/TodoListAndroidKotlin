@@ -4,15 +4,16 @@ import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.contract.ActivityResultContracts.*
+import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
-import androidx.compose.material.SnackbarDefaults.backgroundColor
+import androidx.compose.material.Icon
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.*
@@ -34,11 +35,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.project.todolist.MainActivity
 import com.project.todolist.R
-import com.project.todolist.model.TodoList
 import com.project.todolist.ui.theme.*
-import dev.chrisbanes.accompanist.glide.GlideImage
 
 @ExperimentalComposeUiApi
 @Composable
@@ -47,13 +45,15 @@ fun EntryDetailedScreen(
     description: String,
     viewModel: EntryDetailedScreenViewModel
 ) {
-        EntryDetailedScreen().EntryDetailedScreenMain(
-            title = title,
-            description = description,
-            clickReturn = { viewModel.clickReturn() },
-            clickSave = { title, description -> viewModel.clickSave(title, description) },
-            clickDelete = { viewModel.clickDelete() }
-        )
+    val state = viewModel.todoImage.collectAsState()
+    EntryDetailedScreen().EntryDetailedScreenMain(
+        title = title,
+        image = state.value,
+        description = description,
+        clickReturn = { viewModel.clickReturn() },
+        clickSave = { title, description, image -> viewModel.clickSave(title, description, image) },
+        clickDelete = { viewModel.clickDelete() }
+    )
 
 }
 
@@ -63,29 +63,39 @@ class EntryDetailedScreen {
     @Composable
     fun EntryDetailedScreenMain(
         title: String,
+        image: Bitmap?,
         description: String,
         clickReturn: () -> Unit,
-        clickSave: (title: String, description: String) -> Unit,
+        clickSave: (title: String, description: String, image: Bitmap?) -> Unit,
         clickDelete: () -> Unit
     ) {
+
+        var noNewSaved by remember { mutableStateOf(true) }
+
+        var imageUriState by remember { mutableStateOf<Uri?>(null) }
+        var newImage by remember { mutableStateOf<Bitmap?>(null) }
+
+        val selectImageLauncher = rememberLauncherForActivityResult(GetContent()) { uri: Uri? ->
+            imageUriState = uri
+        }
+
+        val back = stringResource(R.string.arrow_back)
+        val edit = stringResource(R.string.edit)
+        val checkSave = stringResource(R.string.check_save)
+        val clear = stringResource(R.string.clear_changes)
+        val addDesc = stringResource(R.string.add_description_toTodo)
+
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val scrollTitle = rememberScrollState()
+        val scrollDescription = rememberScrollState()
+        var titleNotEmpty by remember { mutableStateOf(true) }
+        var enabledChangeTitle by remember { mutableStateOf(false) }
+        var titleTextState by remember { mutableStateOf(title) }
+        var previousTitleState by remember { mutableStateOf(title) }
+        var todoDescriptionState by remember { mutableStateOf(description.trim()) }
+        var previousDescriptionState by remember { mutableStateOf(description.trim()) }
+
         TodoListTheme {
-            val back = stringResource(R.string.arrow_back)
-            val edit = stringResource(R.string.edit)
-            val checkSave = stringResource(R.string.check_save)
-            val clear = stringResource(R.string.clear_changes)
-            val addDesc = stringResource(id = R.string.add_description_toTodo)
-
-            val keyboardController = LocalSoftwareKeyboardController.current
-            val scrollTitle = rememberScrollState()
-            val scrollDescription = rememberScrollState()
-            var titleNotEmpty by remember { mutableStateOf(true) }
-            var enabledChangeTitle by remember { mutableStateOf(false) }
-            var titleTextState by remember { mutableStateOf(title) }
-            var previousTitleState by remember { mutableStateOf(title) }
-            var todoDescriptionState by remember { mutableStateOf(description.trim()) }
-
-            var previousDescriptionState by remember { mutableStateOf(description.trim()) }
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -119,6 +129,8 @@ class EntryDetailedScreen {
                                     titleTextState = previousTitleState
                                     todoDescriptionState = previousDescriptionState
                                     enabledChangeTitle = false
+                                    imageUriState = null
+                                    newImage = null
                                 })
                     }
                     Text(
@@ -140,8 +152,9 @@ class EntryDetailedScreen {
                                 .semantics { testTag = checkSave }
                                 .clickable {
                                     if (titleNotEmpty) {
-                                        clickSave(titleTextState, todoDescriptionState)
+                                        clickSave(titleTextState, todoDescriptionState, newImage)
                                         enabledChangeTitle = false
+                                        noNewSaved = false
                                     }
                                 })
                     } else {
@@ -159,10 +172,48 @@ class EntryDetailedScreen {
                                 })
                     }
                 }
+                Spacer(modifier = Modifier.padding(0.dp, 10.dp))
                 if (enabledChangeTitle) {
-                    PhotoSelector()
+                    Row(
+                        modifier = Modifier.width(350.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        PhotoSelector(onClickAddImage = { selectImageLauncher.launch("image/*") })
+                        if (imageUriState != null) {
+                            val source = ImageDecoder
+                                .createSource(
+                                    LocalContext.current.contentResolver,
+                                    imageUriState!!
+                                )
+                            newImage = ImageDecoder.decodeBitmap(source)
+                        }
+                        if (newImage != null) {
+                            Spacer(modifier = Modifier.padding(15.dp, 0.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .height(100.dp)
+                            )
+                            {
+                                Image(bitmap = newImage!!.asImageBitmap(), contentDescription = "")
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+                } else if (newImage != null || image != null) {
+                    Box(modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .height(100.dp))
+                    {
+                        if (image != null && noNewSaved) {
+                            Image(bitmap = image!!.asImageBitmap(), contentDescription = "")
+                        } else {
+                            Image(bitmap = newImage!!.asImageBitmap(), contentDescription = "")
+                        }
+                    }
+                    Spacer(modifier = Modifier.padding(0.dp, 10.dp))
                 }
-                Spacer(modifier = Modifier.padding(0.dp, 20.dp))
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -184,7 +235,7 @@ class EntryDetailedScreen {
                                 modifier = Modifier
                                     .padding(vertical = 10.dp, horizontal = 5.dp)
                                     .verticalScroll(scrollTitle),
-                                textAlign = TextAlign.Center,
+                                textAlign = TextAlign.Start,
                                 fontFamily = josefinsans,
                                 fontWeight = FontWeight.Bold
                             )
@@ -193,7 +244,7 @@ class EntryDetailedScreen {
                         Box(
                             modifier = Modifier
                                 .width(350.dp)
-                                .sizeIn(minHeight = 300.dp, maxHeight = 450.dp)
+                                .sizeIn(minHeight = 360.dp, maxHeight = 380.dp)
                                 .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                             contentAlignment = Alignment.Center
                         ) {
@@ -228,7 +279,7 @@ class EntryDetailedScreen {
                             shape = RoundedCornerShape(20.dp),
                             modifier = Modifier
                                 .width(350.dp)
-                                .sizeIn(minHeight = 70.dp, maxHeight = 100.dp)
+                                .sizeIn(minHeight = 70.dp, maxHeight = 120.dp)
                                 .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                             placeholder = {
                                 Text(
@@ -237,7 +288,6 @@ class EntryDetailedScreen {
                                     textAlign = TextAlign.Center,
                                     fontFamily = dmSans,
                                     fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
                                 )
                             },
                             textStyle = TextStyle(
@@ -261,7 +311,7 @@ class EntryDetailedScreen {
                             shape = RoundedCornerShape(20.dp),
                             modifier = Modifier
                                 .width(350.dp)
-                                .sizeIn(minHeight = 300.dp, maxHeight = 450.dp)
+                                .sizeIn(minHeight = 360.dp, maxHeight = 380.dp)
                                 .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                             placeholder = {
                                 Text(
@@ -294,34 +344,16 @@ class EntryDetailedScreen {
     }
 
     @Composable
-    fun PhotoSelector() {
-        var imageUriState by remember {mutableStateOf<Uri?>(null)}
-        var bitmap by remember { mutableStateOf<Bitmap?>(null) }
-
-        val selectImageLauncher = rememberLauncherForActivityResult(GetContent()) { uri: Uri? ->
-            imageUriState = uri
-        }
-
-        if (imageUriState != null) {
-            val source = ImageDecoder
-                .createSource(LocalContext.current.contentResolver,
-                    imageUriState!!
-                )
-            bitmap = ImageDecoder.decodeBitmap(source)
-            Box(modifier = Modifier.clip(
-                RoundedCornerShape(20.dp)).height(100.dp)) {
-                Image(bitmap = bitmap!!.asImageBitmap(), contentDescription = "",
-                )
-            }
-        }
-
+    fun PhotoSelector(onClickAddImage: () -> Unit) {
         val camera = stringResource(R.string.camera_icon)
         val addPhoto = stringResource(R.string.add_photo)
-        Box(modifier = Modifier
-            .shadow(20.dp, RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp))
-            .background(Color.White)
-            .clickable {selectImageLauncher.launch("image/*")},
-        contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier
+                .shadow(20.dp, RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp))
+                .background(Color.White)
+                .clickable { onClickAddImage() },
+            contentAlignment = Alignment.Center
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp)
@@ -351,7 +383,7 @@ class EntryDetailedScreen {
         Box(
             modifier = Modifier
                 .shadow(20.dp, RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp))
-                .background(backgroundColor)
+                .background(Color.Red)
                 .clickable { clickDelete() },
             contentAlignment = Alignment.Center
         ) {

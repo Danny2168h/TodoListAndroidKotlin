@@ -59,6 +59,7 @@ class TodoListRepository(private val todoListDao: TodoListDao) {
                 todoItem.description = updatedItem.description
                 todoItem.markedForCompletion = updatedItem.markedForCompletion
                 todoItem.title = updatedItem.title
+                todoItem.imagePath = updatedItem.imagePath
             }
         }
         return todoList
