@@ -79,7 +79,7 @@ class ListDetailedScreenViewModel(
 
     fun onTapSave(title: String, itemDueTime: String) {
         viewModelScope.launch(dispatcher) {
-            val item = TodoItem(title.trim())
+            val item = TodoItem(title = title.trim(), dueDate = itemDueTime)
             todoListRepository.updateTodoList(
                 currentList.value.copy(
                     todoItems = currentList.value.todoItems + item
@@ -150,12 +150,6 @@ class ListDetailedScreenViewModel(
         )
     }
 
-
-    data class ListDetailedScreenViewState(
-        val todoList: List<TodoItem> = emptyList(),
-        val count: Int = -1,
-    )
-
     private fun isWorkScheduled(tag: String): Boolean {
         val instance = WorkManager.getInstance(MainActivity.applicationContext())
         val statuses: ListenableFuture<List<WorkInfo>> = instance.getWorkInfosByTag(tag)
@@ -175,5 +169,10 @@ class ListDetailedScreenViewModel(
             false
         }
     }
+
+    data class ListDetailedScreenViewState(
+        val todoList: List<TodoItem> = emptyList(),
+        val count: Int = -1,
+    )
 
 }

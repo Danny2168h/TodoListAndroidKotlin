@@ -15,10 +15,13 @@ import com.project.todolist.model.TodoItem
 import com.project.todolist.model.TodoList
 import com.project.todolist.model.database.TodoListRepository
 import com.project.todolist.screens.entry.workers.DeleteItemWorker
+import com.project.todolist.screens.todolist.ListDetailedScreenViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.io.IOException
 
@@ -32,24 +35,43 @@ class EntryDetailedScreenViewModel(
 
     private val todoLists = todoRepo.readAllData
     private val todoItem = MutableStateFlow(TodoItem(title = ""))
-    val todoImage = MutableStateFlow<Bitmap?>(null)
+    private val todoImage = MutableStateFlow<Bitmap?>(null)
+    private val todoDueDate = MutableStateFlow("")
+
+    private val _state = MutableStateFlow(EntryDetailedScreenState())
+    val state: StateFlow<EntryDetailedScreenState>
+        get() = _state
 
     init {
         getTodoItem()
+        viewStateUpdater()
+    }
+
+    private fun viewStateUpdater() {
+        viewModelScope.launch(dispatcher) {
+            combine(todoImage, todoDueDate) {
+                image, date -> EntryDetailedScreenState(image, date)
+            } .collect {
+                _state.value = it
+            }
+        }
     }
 
     private fun getTodoItem() {
-        viewModelScope.launch(dispatcher) {
+        viewModelScope.launch {
             todoLists.collect { todoLists ->
                 val todoList: TodoList? = todoLists.find { it.id == listID }
-                val foundItem: TodoItem? = todoList!!.todoItems.find { it.uniqueID == itemID }
-                if (foundItem != null) {
-                    todoItem.value = foundItem!!
-                    if (todoItem.value.imagePath != null) {
-                        val bytes = MainActivity.applicationContext()
-                            .openFileInput("${todoItem.value.uniqueID}.jpeg").readBytes()
-                        val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                        todoImage.value = bmp
+                if (todoList != null) {
+                    val foundItem: TodoItem? = todoList!!.todoItems.find { it.uniqueID == itemID }
+                    if (foundItem != null) {
+                        todoItem.value = foundItem!!
+                        todoDueDate.value = foundItem!!.dueDate
+                        if (todoItem.value.imagePath != null) {
+                            val bytes = MainActivity.applicationContext()
+                                .openFileInput("${todoItem.value.uniqueID}.jpeg").readBytes()
+                            val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                            todoImage.value = bmp
+                        }
                     }
                 }
             }
@@ -67,7 +89,7 @@ class EntryDetailedScreenViewModel(
                     } else {
                         description
                     },
-                    imagePath = "${todoItem.value.uniqueID}.jpeg"
+                    imagePath = if (image != null) {"${todoItem.value.uniqueID}.jpeg"} else {null}
                 )
             )
 
@@ -100,4 +122,10 @@ class EntryDetailedScreenViewModel(
         workManager.enqueue(worker.build())
         navController.popBackStack()
     }
+
+    data class EntryDetailedScreenState(
+        val todoImage: Bitmap? = null,
+        val todoDueDate: String = ""
+
+    )
 }

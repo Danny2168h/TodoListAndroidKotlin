@@ -36,7 +36,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.project.todolist.R
+import com.project.todolist.model.IntToMonth
 import com.project.todolist.ui.theme.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 @ExperimentalComposeUiApi
 @Composable
@@ -45,10 +48,11 @@ fun EntryDetailedScreen(
     description: String,
     viewModel: EntryDetailedScreenViewModel
 ) {
-    val state = viewModel.todoImage.collectAsState()
+    val state by viewModel.state.collectAsState()
     EntryDetailedScreen().EntryDetailedScreenMain(
         title = title,
-        image = state.value,
+        image = state.todoImage,
+        dueDate = state.todoDueDate,
         description = description,
         clickReturn = { viewModel.clickReturn() },
         clickSave = { title, description, image -> viewModel.clickSave(title, description, image) },
@@ -65,6 +69,7 @@ class EntryDetailedScreen {
         title: String,
         image: Bitmap?,
         description: String,
+        dueDate: String,
         clickReturn: () -> Unit,
         clickSave: (title: String, description: String, image: Bitmap?) -> Unit,
         clickDelete: () -> Unit
@@ -74,6 +79,10 @@ class EntryDetailedScreen {
 
         var imageUriState by remember { mutableStateOf<Uri?>(null) }
         var newImage by remember { mutableStateOf<Bitmap?>(null) }
+        var tempImage by remember { mutableStateOf<Bitmap?>(null) }
+        var alreadyDecoded by remember {mutableStateOf(false)}
+
+        println("$imageUriState        $newImage          $tempImage")
 
         val selectImageLauncher = rememberLauncherForActivityResult(GetContent()) { uri: Uri? ->
             imageUriState = uri
@@ -130,7 +139,8 @@ class EntryDetailedScreen {
                                     todoDescriptionState = previousDescriptionState
                                     enabledChangeTitle = false
                                     imageUriState = null
-                                    newImage = null
+                                    tempImage = null
+                                    alreadyDecoded = false
                                 })
                     }
                     Text(
@@ -152,9 +162,12 @@ class EntryDetailedScreen {
                                 .semantics { testTag = checkSave }
                                 .clickable {
                                     if (titleNotEmpty) {
-                                        clickSave(titleTextState, todoDescriptionState, newImage)
+                                        newImage = tempImage
+                                        tempImage = null
                                         enabledChangeTitle = false
                                         noNewSaved = false
+                                        clickSave(titleTextState, todoDescriptionState, newImage)
+                                        alreadyDecoded = false
                                     }
                                 })
                     } else {
@@ -180,15 +193,16 @@ class EntryDetailedScreen {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         PhotoSelector(onClickAddImage = { selectImageLauncher.launch("image/*") })
-                        if (imageUriState != null) {
+                        if (imageUriState != null && !alreadyDecoded) {
                             val source = ImageDecoder
                                 .createSource(
                                     LocalContext.current.contentResolver,
                                     imageUriState!!
                                 )
-                            newImage = ImageDecoder.decodeBitmap(source)
+                            tempImage = ImageDecoder.decodeBitmap(source)
+                            alreadyDecoded = true
                         }
-                        if (newImage != null) {
+                        if (tempImage != null) {
                             Spacer(modifier = Modifier.padding(15.dp, 0.dp))
                             Box(
                                 modifier = Modifier
@@ -196,22 +210,31 @@ class EntryDetailedScreen {
                                     .height(100.dp)
                             )
                             {
-                                Image(bitmap = newImage!!.asImageBitmap(), contentDescription = "")
+                                Image(bitmap = tempImage!!.asImageBitmap(), contentDescription = "")
                             }
                         }
                     }
                     Spacer(modifier = Modifier.padding(0.dp, 10.dp))
                 } else if (newImage != null || image != null) {
-                    Box(modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .height(100.dp))
-                    {
-                        if (image != null && noNewSaved) {
-                            Image(bitmap = image!!.asImageBitmap(), contentDescription = "")
-                        } else {
-                            Image(bitmap = newImage!!.asImageBitmap(), contentDescription = "")
+                    Row(modifier = Modifier.width(350.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                        DisplayDueDate(dueDate)
+                        Spacer(modifier = Modifier.padding(10.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .height(100.dp)
+                        )
+                        {
+                            if (image != null && noNewSaved) {
+                                Image(bitmap = image!!.asImageBitmap(), contentDescription = "")
+                            } else {
+                                Image(bitmap = newImage!!.asImageBitmap(), contentDescription = "")
+                            }
                         }
                     }
+                    Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+                } else {
+                    DisplayDueDate(dueDate)
                     Spacer(modifier = Modifier.padding(0.dp, 10.dp))
                 }
                 Column(
@@ -246,7 +269,7 @@ class EntryDetailedScreen {
                                 .width(350.dp)
                                 .sizeIn(minHeight = 360.dp, maxHeight = 380.dp)
                                 .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.TopCenter
                         ) {
                             Text(
                                 text = if (todoDescriptionState.isEmpty()) {
@@ -261,7 +284,7 @@ class EntryDetailedScreen {
                                     WhiteTextColor
                                 },
                                 modifier = Modifier
-                                    .padding(vertical = 10.dp, horizontal = 5.dp)
+                                    .padding(vertical = 10.dp, horizontal = 10.dp)
                                     .verticalScroll(scrollDescription),
                                 textAlign = TextAlign.Center,
                                 fontFamily = josefinsans,
@@ -334,13 +357,25 @@ class EntryDetailedScreen {
                             colors = TextFieldDefaults.textFieldColors(textColor = WhiteTextColor),
                         )
                     }
-                    Spacer(modifier = Modifier.padding(vertical = 10.dp))
+                    Spacer(modifier = Modifier.padding(vertical = 15.dp))
                     if (!enabledChangeTitle) {
                         DeleteItemButton(clickDelete = { clickDelete() })
                     }
                 }
             }
         }
+    }
+
+    @Composable
+    fun DisplayDueDate(dueDate: String) {
+
+        Text(modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(Color.White).padding(10.dp),
+            text = formatDateString(dueDate),
+            fontSize = 15.sp,
+            color = BlackTextColor,
+            fontFamily = josefinsans,
+            fontWeight = FontWeight.Bold)
+
     }
 
     @Composable
@@ -407,6 +442,25 @@ class EntryDetailedScreen {
             }
         }
     }
+}
+
+fun formatDateString(
+    dateString: String
+): String {
+    if (dateString == "") {
+        return ""
+    }
+
+    val dueDate = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(dateString)
+    val month = dueDate.month
+    val year = (dueDate.year + 1900) % 100
+    val minute = dueDate.minutes
+    val hour = dueDate.hours
+    val day = dueDate.date
+
+    return "$day/${IntToMonth.convertIntMonthToString(month)}/$year " +
+            "${if (hour > 12) hour - 12 else if (hour == 0) "12" else hour}:" +
+            "${if (minute < 10) "0$minute" else minute}${if (hour >= 12) "PM" else "AM"}"
 }
 
 
