@@ -76,13 +76,12 @@ fun SetUpNavGraph(navigationControl: NavHostController) {
             )
         ) { entry ->
             EntryDetailedScreen(
-                navController = navigationControl,
-                title = entry.arguments?.getString("todo_title"),
-                description = entry.arguments?.getString("todo_description"),
+                title = entry.arguments?.getString("todo_title") ?: "",
+                description = entry.arguments?.getString("todo_description") ?: "",
                 viewModel = EntryDetailedScreenViewModel(
                     navController = navigationControl,
-                    listID = entry.arguments?.getLong("todo_listID"),
-                    itemID = entry.arguments?.getString("todo_itemID")
+                    listID = entry.arguments?.getLong("todo_listID") ?: 0,
+                    itemID = entry.arguments?.getString("todo_itemID") ?: ""
                 )
             )
         }

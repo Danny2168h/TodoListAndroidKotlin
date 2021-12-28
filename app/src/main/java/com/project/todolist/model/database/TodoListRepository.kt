@@ -1,5 +1,6 @@
 package com.project.todolist.model.database
 
+import com.project.todolist.MainActivity
 import com.project.todolist.model.TodoItem
 import com.project.todolist.model.TodoList
 
@@ -59,6 +60,8 @@ class TodoListRepository(private val todoListDao: TodoListDao) {
                 todoItem.description = updatedItem.description
                 todoItem.markedForCompletion = updatedItem.markedForCompletion
                 todoItem.title = updatedItem.title
+                todoItem.imagePath = updatedItem.imagePath
+                todoItem.dueDate = updatedItem.dueDate
             }
         }
         return todoList

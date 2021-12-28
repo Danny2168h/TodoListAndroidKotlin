@@ -245,7 +245,7 @@ fun TodoListIndividual(
     onClickEntry: (id: Long, title: String) -> Unit,
     onClickDelete: (Long) -> Unit
 ) {
-    val scroll = rememberScrollState(0)
+    val scroll = rememberScrollState()
     val openDialog = remember { mutableStateOf(false) }
     val closeIcon = stringResource(R.string.close_icon)
     val individualList = stringResource(R.string.individual_list)
@@ -317,7 +317,7 @@ fun TodoListIndividual(
                 modifier = Modifier
                     .padding(10.dp)
                     .fillMaxWidth()
-                    .verticalScroll(scroll, reverseScrolling = true),
+                    .verticalScroll(scroll),
                 textAlign = TextAlign.Center
             )
         }
@@ -357,7 +357,7 @@ fun AddListButton(
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope
 ) {
-    val addIcon = stringResource(R.string.add_icon)
+    val addIcon = stringResource(R.string.delete_forever)
     Box(
         modifier = Modifier
             .shadow(20.dp, RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp))
