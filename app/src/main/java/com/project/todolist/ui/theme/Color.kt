@@ -13,6 +13,7 @@ val WhiteTextColor = Color(251, 252, 255, 255)
 val WhiteTextColorFade = Color(251, 252, 255, 150)
 val CheckGreen = Color(0, 255, 101, 255)
 val BlackAddList = Color(18, 18, 18, 255)
+val FadedRed = Color(184, 101, 102, 255)
 
 //List Detailed Screen
 val ListDetailedTopInfoArea = Color(42, 46, 51, 255)

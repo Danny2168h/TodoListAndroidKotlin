@@ -41,4 +41,6 @@
     <string name="new_itemTitle">New Title For Todo Item</string>
     <string name="add_description_toTodo">Add a description to your todo item</string>
     <string name="delete_forever">delete forever</string>
+    <string name="camera_icon">camera icon</string>
+    <string name="add_photo">Attach Photo</string>
 </resources>
