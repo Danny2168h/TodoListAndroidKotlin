@@ -427,7 +427,7 @@ fun EntryDetailedScreenMain(
                             Text(
                                 text = stringResource(id = R.string.add_description_toTodo),
                                 color = WhiteTextColorFade,
-                                textAlign = TextAlign.Center,
+                                textAlign = TextAlign.Start,
                                 fontFamily = dmSans,
                                 fontWeight = FontWeight.Bold,
                             )
@@ -437,7 +437,7 @@ fun EntryDetailedScreenMain(
                             color = WhiteTextColor,
                             fontFamily = josefinsans,
                             fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Start
                         ),
                         singleLine = false,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
