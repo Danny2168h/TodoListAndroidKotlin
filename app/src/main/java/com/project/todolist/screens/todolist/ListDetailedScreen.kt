@@ -407,7 +407,7 @@ fun AddItemUI(
                         .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp))
                         .clickable {
                             datePicker.datePicker.minDate =
-                                System.currentTimeMillis() + minTimeAhead * 60 * 1000
+                                System.currentTimeMillis() + minTimeAhead * 6000
                             if (yearSelected == -1 || monthSelected == -1 || daySelected == -1) {
                                 datePicker.updateDate(
                                     c.get(Calendar.YEAR),
