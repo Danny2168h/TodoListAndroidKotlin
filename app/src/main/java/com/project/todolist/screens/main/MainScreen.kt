@@ -142,7 +142,7 @@ fun AddListUI(
                 onValueChange =
                 {
                     textState = it
-                    enabled = textState.isNotEmpty()
+                    enabled = textState.trim().isNotEmpty()
                 },
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
@@ -174,6 +174,7 @@ fun AddListUI(
                         }
                     }
                     textState = ""
+                    enabled = false
                 },
                 enabled = enabled,
                 shape = RoundedCornerShape(20),

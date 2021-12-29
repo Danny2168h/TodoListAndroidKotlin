@@ -292,7 +292,8 @@ fun AddItemUI(
     val setDueDate = stringResource(R.string.set_due_date)
     val invalidTime = stringResource(R.string.invalid_time)
 
-    var enabled by remember { mutableStateOf(false) }
+    var textFilled by remember { mutableStateOf(false) }
+    var dateSet by remember { mutableStateOf(false) }
     var textState by remember { mutableStateOf("") }
     var dateState by remember { mutableStateOf(setDueDate) }
 
@@ -324,6 +325,7 @@ fun AddItemUI(
                     minuteSelected,
                     setDueDate
                 )
+                dateSet = true
             }
         },
         c.get(Calendar.HOUR_OF_DAY),
@@ -378,7 +380,7 @@ fun AddItemUI(
                 onValueChange =
                 {
                     textState = it
-                    enabled = textState.isNotEmpty()
+                    textFilled = textState.trim().isNotEmpty()
                 },
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
@@ -405,7 +407,7 @@ fun AddItemUI(
                         .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp))
                         .clickable {
                             datePicker.datePicker.minDate =
-                                System.currentTimeMillis() + minTimeAhead * 300 * 1000
+                                System.currentTimeMillis() + minTimeAhead * 60 * 1000
                             if (yearSelected == -1 || monthSelected == -1 || daySelected == -1) {
                                 datePicker.updateDate(
                                     c.get(Calendar.YEAR),
@@ -451,9 +453,11 @@ fun AddItemUI(
                         yearSelected = -1
                         minuteSelected = -1
                         hourSelected = -1
+                        textFilled = false
+                        dateSet = false
                     }
                 },
-                enabled = enabled,
+                enabled = textFilled && dateSet,
                 shape = RoundedCornerShape(20),
                 colors = ButtonDefaults.buttonColors(WhiteBackground),
                 content = {
@@ -462,7 +466,7 @@ fun AddItemUI(
                         fontFamily = dmSans,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
-                        color = if (enabled) BlackTextColor else LightGrey
+                        color = if (textFilled && dateSet) BlackTextColor else LightGrey
                     )
                 })
         }
