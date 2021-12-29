@@ -4,16 +4,14 @@ import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Icon
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.*
@@ -35,11 +33,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
+import com.project.todolist.MainActivity
 import com.project.todolist.R
 import com.project.todolist.model.IntToMonth
 import com.project.todolist.ui.theme.*
+import java.io.File
 import java.text.SimpleDateFormat
-import java.util.*
 
 @ExperimentalComposeUiApi
 @Composable
@@ -75,17 +75,27 @@ class EntryDetailedScreen {
         clickDelete: () -> Unit
     ) {
 
+        val tempFile = createImageFile()
+        val tempUri = FileProvider.getUriForFile(
+            MainActivity.applicationContext(),
+            "com.project.todolist.fileprovider",
+            tempFile
+        )
         var noNewSaved by remember { mutableStateOf(true) }
 
         var imageUriState by remember { mutableStateOf<Uri?>(null) }
         var newImage by remember { mutableStateOf<Bitmap?>(null) }
         var tempImage by remember { mutableStateOf<Bitmap?>(null) }
-        var alreadyDecoded by remember {mutableStateOf(false)}
-
-        println("$imageUriState        $newImage          $tempImage")
+        var openDialog = remember { mutableStateOf(false) }
 
         val selectImageLauncher = rememberLauncherForActivityResult(GetContent()) { uri: Uri? ->
             imageUriState = uri
+        }
+
+        val takePhoto = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+            if (it) {
+                imageUriState = tempUri
+            }
         }
 
         val back = stringResource(R.string.arrow_back)
@@ -105,6 +115,41 @@ class EntryDetailedScreen {
         var previousDescriptionState by remember { mutableStateOf(description.trim()) }
 
         TodoListTheme {
+            if (openDialog.value) {
+                AlertDialog(onDismissRequest = { openDialog.value = false },
+                    title = { Text(text = stringResource(R.string.attach_image)) },
+                    text = { Text(text = stringResource(R.string.choose_photo_opt)) },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                takePhoto.launch(tempUri)
+                                openDialog.value = false
+                            },
+                            colors = ButtonDefaults.buttonColors(BlackAddList),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.from_camera),
+                                color = WhiteTextColor
+                            )
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = {
+                                selectImageLauncher.launch("image/*")
+                                openDialog.value = false
+                            },
+                            colors = ButtonDefaults.buttonColors(BlackAddList),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.from_library),
+                                color = WhiteTextColor
+                            )
+                        }
+                    }
+                )
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -140,7 +185,6 @@ class EntryDetailedScreen {
                                     enabledChangeTitle = false
                                     imageUriState = null
                                     tempImage = null
-                                    alreadyDecoded = false
                                 })
                     }
                     Text(
@@ -167,7 +211,6 @@ class EntryDetailedScreen {
                                         enabledChangeTitle = false
                                         noNewSaved = false
                                         clickSave(titleTextState, todoDescriptionState, newImage)
-                                        alreadyDecoded = false
                                     }
                                 })
                     } else {
@@ -192,15 +235,17 @@ class EntryDetailedScreen {
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        PhotoSelector(onClickAddImage = { selectImageLauncher.launch("image/*") })
-                        if (imageUriState != null && !alreadyDecoded) {
+                        PhotoSelector(onClickAddImage = {
+                            openDialog.value = true
+                        })
+                        if (imageUriState != null) { // current running as infinite loop if imageURI state is not null
                             val source = ImageDecoder
                                 .createSource(
                                     LocalContext.current.contentResolver,
                                     imageUriState!!
                                 )
                             tempImage = ImageDecoder.decodeBitmap(source)
-                            alreadyDecoded = true
+                            imageUriState = null
                         }
                         if (tempImage != null) {
                             Spacer(modifier = Modifier.padding(15.dp, 0.dp))
@@ -216,7 +261,11 @@ class EntryDetailedScreen {
                     }
                     Spacer(modifier = Modifier.padding(0.dp, 10.dp))
                 } else if (newImage != null || image != null) {
-                    Row(modifier = Modifier.width(350.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    Row(
+                        modifier = Modifier.width(350.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         DisplayDueDate(dueDate)
                         Spacer(modifier = Modifier.padding(10.dp))
                         Box(
@@ -369,12 +418,17 @@ class EntryDetailedScreen {
     @Composable
     fun DisplayDueDate(dueDate: String) {
 
-        Text(modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(Color.White).padding(10.dp),
+        Text(
+            modifier = Modifier
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color.White)
+                .padding(10.dp),
             text = formatDateString(dueDate),
             fontSize = 15.sp,
             color = BlackTextColor,
             fontFamily = josefinsans,
-            fontWeight = FontWeight.Bold)
+            fontWeight = FontWeight.Bold
+        )
 
     }
 
@@ -441,6 +495,13 @@ class EntryDetailedScreen {
                 )
             }
         }
+    }
+
+    private fun createImageFile(): File {
+        val storageDir = MainActivity.applicationContext().cacheDir
+        val file = File.createTempFile("temp", ".jpg", storageDir)
+        file.deleteOnExit()
+        return file
     }
 }
 

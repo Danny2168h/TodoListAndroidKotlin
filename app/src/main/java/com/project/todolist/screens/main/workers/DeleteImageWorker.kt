@@ -15,8 +15,8 @@ class DeleteImageWorker(appContext: Context, workerParams: WorkerParameters) :
 
         todoList.todoItems.map {
             if (it.imagePath != null) {
-            this.applicationContext.deleteFile(it.imagePath)
-        }
+                this.applicationContext.deleteFile(it.imagePath)
+            }
             workManager.cancelAllWorkByTag(it.notificationID)
         }
         Graph.todoRepo.deleteTodoList(inputData.getLong("LIST_ID", -1))

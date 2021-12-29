@@ -43,4 +43,8 @@
     <string name="delete_forever">delete forever</string>
     <string name="camera_icon">camera icon</string>
     <string name="add_photo">Attach Photo</string>
+    <string name="attach_image">Attach an Image</string>
+    <string name="choose_photo_opt">Choose an option to get your photo</string>
+    <string name="from_camera">Camera</string>
+    <string name="from_library">Library</string>
 </resources>

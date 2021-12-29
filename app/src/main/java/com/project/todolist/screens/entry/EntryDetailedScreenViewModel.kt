@@ -15,7 +15,6 @@ import com.project.todolist.model.TodoItem
 import com.project.todolist.model.TodoList
 import com.project.todolist.model.database.TodoListRepository
 import com.project.todolist.screens.entry.workers.DeleteItemWorker
-import com.project.todolist.screens.todolist.ListDetailedScreenViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,9 +48,9 @@ class EntryDetailedScreenViewModel(
 
     private fun viewStateUpdater() {
         viewModelScope.launch(dispatcher) {
-            combine(todoImage, todoDueDate) {
-                image, date -> EntryDetailedScreenState(image, date)
-            } .collect {
+            combine(todoImage, todoDueDate) { image, date ->
+                EntryDetailedScreenState(image, date)
+            }.collect {
                 _state.value = it
             }
         }
@@ -89,7 +88,11 @@ class EntryDetailedScreenViewModel(
                     } else {
                         description
                     },
-                    imagePath = if (image != null) {"${todoItem.value.uniqueID}.jpeg"} else {null}
+                    imagePath = if (image != null) {
+                        "${todoItem.value.uniqueID}.jpeg"
+                    } else {
+                        null
+                    }
                 )
             )
 

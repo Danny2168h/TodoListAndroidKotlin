@@ -11,11 +11,13 @@ import com.project.todolist.MainActivity
 import com.project.todolist.model.TodoList
 import com.project.todolist.model.database.TodoListRepository
 import com.project.todolist.navigation.Screen
-import com.project.todolist.screens.entry.workers.DeleteItemWorker
 import com.project.todolist.screens.main.workers.DeleteImageWorker
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class MainScreenViewModel(
