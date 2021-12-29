@@ -49,196 +49,235 @@ fun EntryDetailedScreen(
     viewModel: EntryDetailedScreenViewModel
 ) {
     val state by viewModel.state.collectAsState()
-    EntryDetailedScreen().EntryDetailedScreenMain(
+    EntryDetailedScreenMain(
         title = title,
         image = state.todoImage,
         dueDate = state.todoDueDate,
         description = description,
         clickReturn = { viewModel.clickReturn() },
-        clickSave = { title, description, image -> viewModel.clickSave(title, description, image) },
+        clickSave = { todoTitle, todoDesc, todoImage ->
+            viewModel.clickSave(
+                todoTitle,
+                todoDesc,
+                todoImage
+            )
+        },
         clickDelete = { viewModel.clickDelete() }
     )
 
 }
 
-class EntryDetailedScreen {
+@ExperimentalComposeUiApi
+@Composable
+fun EntryDetailedScreenMain(
+    title: String,
+    image: Bitmap?,
+    description: String,
+    dueDate: String,
+    clickReturn: () -> Unit,
+    clickSave: (title: String, description: String, image: Bitmap?) -> Unit,
+    clickDelete: () -> Unit
+) {
+    val tempFile = createImageFile()
+    val tempUri = FileProvider.getUriForFile(
+        MainActivity.applicationContext(),
+        "com.project.todolist.fileprovider",
+        tempFile
+    )
 
-    @ExperimentalComposeUiApi
-    @Composable
-    fun EntryDetailedScreenMain(
-        title: String,
-        image: Bitmap?,
-        description: String,
-        dueDate: String,
-        clickReturn: () -> Unit,
-        clickSave: (title: String, description: String, image: Bitmap?) -> Unit,
-        clickDelete: () -> Unit
-    ) {
+    var imageUriState by remember { mutableStateOf<Uri?>(null) }
+    var tempImage by remember { mutableStateOf<Bitmap?>(null) }
+    var newImage by remember { mutableStateOf<Bitmap?>(null) }
+    val openPhotoDialog = remember { mutableStateOf(false) }
+    val openDeleteDialog = remember { mutableStateOf(false) }
 
-        val tempFile = createImageFile()
-        val tempUri = FileProvider.getUriForFile(
-            MainActivity.applicationContext(),
-            "com.project.todolist.fileprovider",
-            tempFile
-        )
-        var noNewSaved by remember { mutableStateOf(true) }
+    val selectImageLauncher = rememberLauncherForActivityResult(GetContent()) { uri: Uri? ->
+        imageUriState = uri
+    }
 
-        var imageUriState by remember { mutableStateOf<Uri?>(null) }
-        var newImage by remember { mutableStateOf<Bitmap?>(null) }
-        var tempImage by remember { mutableStateOf<Bitmap?>(null) }
-        var openDialog = remember { mutableStateOf(false) }
-
-        val selectImageLauncher = rememberLauncherForActivityResult(GetContent()) { uri: Uri? ->
-            imageUriState = uri
+    val takePhoto = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+        if (it) {
+            imageUriState = tempUri
         }
+    }
 
-        val takePhoto = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            if (it) {
-                imageUriState = tempUri
-            }
-        }
+    val back = stringResource(R.string.arrow_back)
+    val edit = stringResource(R.string.edit)
+    val checkSave = stringResource(R.string.check_save)
+    val clear = stringResource(R.string.clear_changes)
+    val addDesc = stringResource(R.string.add_description_toTodo)
 
-        val back = stringResource(R.string.arrow_back)
-        val edit = stringResource(R.string.edit)
-        val checkSave = stringResource(R.string.check_save)
-        val clear = stringResource(R.string.clear_changes)
-        val addDesc = stringResource(R.string.add_description_toTodo)
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val scrollTitle = rememberScrollState()
+    val scrollDescription = rememberScrollState()
+    var titleNotEmpty by remember { mutableStateOf(true) }
+    var enabledChangeTitle by remember { mutableStateOf(false) }
+    var titleTextState by remember { mutableStateOf(title) }
+    var previousTitleState by remember { mutableStateOf(title) }
+    var todoDescriptionState by remember { mutableStateOf(description.trim()) }
+    var previousDescriptionState by remember { mutableStateOf(description.trim()) }
 
-        val keyboardController = LocalSoftwareKeyboardController.current
-        val scrollTitle = rememberScrollState()
-        val scrollDescription = rememberScrollState()
-        var titleNotEmpty by remember { mutableStateOf(true) }
-        var enabledChangeTitle by remember { mutableStateOf(false) }
-        var titleTextState by remember { mutableStateOf(title) }
-        var previousTitleState by remember { mutableStateOf(title) }
-        var todoDescriptionState by remember { mutableStateOf(description.trim()) }
-        var previousDescriptionState by remember { mutableStateOf(description.trim()) }
-
-        TodoListTheme {
-            if (openDialog.value) {
-                AlertDialog(onDismissRequest = { openDialog.value = false },
-                    title = { Text(text = stringResource(R.string.attach_image)) },
-                    text = { Text(text = stringResource(R.string.choose_photo_opt)) },
-                    confirmButton = {
-                        Button(
-                            onClick = {
-                                takePhoto.launch(tempUri)
-                                openDialog.value = false
-                            },
-                            colors = ButtonDefaults.buttonColors(BlackAddList),
-                        ) {
-                            Text(
-                                text = stringResource(R.string.from_camera),
-                                color = WhiteTextColor
-                            )
-                        }
-                    },
-                    dismissButton = {
-                        Button(
-                            onClick = {
-                                selectImageLauncher.launch("image/*")
-                                openDialog.value = false
-                            },
-                            colors = ButtonDefaults.buttonColors(BlackAddList),
-                        ) {
-                            Text(
-                                text = stringResource(R.string.from_library),
-                                color = WhiteTextColor
-                            )
-                        }
+    TodoListTheme {
+        if (openPhotoDialog.value) {
+            AlertDialog(onDismissRequest = { openPhotoDialog.value = false },
+                title = { Text(text = stringResource(R.string.attach_image)) },
+                text = { Text(text = stringResource(R.string.choose_photo_opt)) },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            takePhoto.launch(tempUri)
+                            openPhotoDialog.value = false
+                        },
+                        colors = ButtonDefaults.buttonColors(BlackAddList),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.from_camera),
+                            color = WhiteTextColor
+                        )
                     }
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .background(ListDetailedViewBackGround),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Spacer(modifier = Modifier.padding(0.dp, 20.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                ) {
-                    if (!enabledChangeTitle) {
-                        Icon(
-                            Icons.Rounded.ArrowBackIosNew,
-                            contentDescription = null,
-                            tint = WhiteBackground,
-                            modifier = Modifier
-                                .size(22.dp)
-                                .semantics { testTag = back }
-                                .clickable { clickReturn() })
-                    } else {
-                        Icon(
-                            Icons.Rounded.Clear,
-                            contentDescription = null,
-                            tint = WhiteBackground,
-                            modifier = Modifier
-                                .size(22.dp)
-                                .semantics { testTag = clear }
-                                .clickable {
-                                    titleTextState = previousTitleState
-                                    todoDescriptionState = previousDescriptionState
-                                    enabledChangeTitle = false
-                                    imageUriState = null
-                                    tempImage = null
-                                })
-                    }
-                    Text(
-                        text = stringResource(id = R.string.todo_title),
-                        color = WhiteTextColor,
-                        fontSize = 25.sp,
-                        fontFamily = montserrat,
-                        fontWeight = FontWeight.ExtraBold,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.width(250.dp)
-                    )
-                    if (enabledChangeTitle) {
-                        Icon(
-                            Icons.Rounded.Check,
-                            contentDescription = null,
-                            tint = WhiteBackground,
-                            modifier = Modifier
-                                .size(22.dp)
-                                .semantics { testTag = checkSave }
-                                .clickable {
-                                    if (titleNotEmpty) {
-                                        newImage = tempImage
-                                        tempImage = null
-                                        enabledChangeTitle = false
-                                        noNewSaved = false
-                                        clickSave(titleTextState, todoDescriptionState, newImage)
-                                    }
-                                })
-                    } else {
-                        Icon(
-                            Icons.Rounded.Edit,
-                            contentDescription = null,
-                            tint = WhiteBackground,
-                            modifier = Modifier
-                                .size(22.dp)
-                                .semantics { testTag = edit }
-                                .clickable {
-                                    previousTitleState = titleTextState
-                                    previousDescriptionState = todoDescriptionState
-                                    enabledChangeTitle = true
-                                })
+                },
+                dismissButton = {
+                    Button(
+                        onClick = {
+                            selectImageLauncher.launch("image/*")
+                            openPhotoDialog.value = false
+                        },
+                        colors = ButtonDefaults.buttonColors(BlackAddList),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.from_library),
+                            color = WhiteTextColor
+                        )
                     }
                 }
-                Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+            )
+        }
+
+        if (openDeleteDialog.value) {
+            AlertDialog(onDismissRequest = { openDeleteDialog.value = false },
+                title = { Text(text = stringResource(R.string.confirm_delete_item)) },
+                text = { Text(text = stringResource(R.string.delete_todoItem)) },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            clickDelete()
+                            openDeleteDialog.value = false
+                        },
+                        colors = ButtonDefaults.buttonColors(BlackAddList),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.yes),
+                            color = WhiteTextColor
+                        )
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = {
+
+                            openDeleteDialog.value = false
+                        },
+                        colors = ButtonDefaults.buttonColors(BlackAddList),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.no),
+                            color = WhiteTextColor
+                        )
+                    }
+                }
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .background(ListDetailedViewBackGround),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(modifier = Modifier.padding(0.dp, 20.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                if (!enabledChangeTitle) {
+                    Icon(
+                        Icons.Rounded.ArrowBackIosNew,
+                        contentDescription = null,
+                        tint = WhiteBackground,
+                        modifier = Modifier
+                            .size(22.dp)
+                            .semantics { testTag = back }
+                            .clickable { clickReturn() })
+                } else {
+                    Icon(
+                        Icons.Rounded.Clear,
+                        contentDescription = null,
+                        tint = WhiteBackground,
+                        modifier = Modifier
+                            .size(22.dp)
+                            .semantics { testTag = clear }
+                            .clickable {
+                                titleTextState = previousTitleState
+                                todoDescriptionState = previousDescriptionState
+                                enabledChangeTitle = false
+                                imageUriState = null
+                                tempImage = null
+                            })
+                }
+                Text(
+                    text = stringResource(id = R.string.todo_title),
+                    color = WhiteTextColor,
+                    fontSize = 25.sp,
+                    fontFamily = montserrat,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.width(250.dp)
+                )
                 if (enabledChangeTitle) {
+                    Icon(
+                        Icons.Rounded.Check,
+                        contentDescription = null,
+                        tint = WhiteBackground,
+                        modifier = Modifier
+                            .size(22.dp)
+                            .semantics { testTag = checkSave }
+                            .clickable {
+                                if (titleNotEmpty) {
+                                    newImage = tempImage
+                                    clickSave(titleTextState, todoDescriptionState, newImage)
+                                    enabledChangeTitle = false
+                                    tempImage = null
+                                    imageUriState = null
+                                }
+                            })
+                } else {
+                    Icon(
+                        Icons.Rounded.Edit,
+                        contentDescription = null,
+                        tint = WhiteBackground,
+                        modifier = Modifier
+                            .size(22.dp)
+                            .semantics { testTag = edit }
+                            .clickable {
+                                previousTitleState = titleTextState
+                                previousDescriptionState = todoDescriptionState
+                                enabledChangeTitle = true
+                            })
+                }
+            }
+            Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+            when {
+                enabledChangeTitle -> {
                     Row(
                         modifier = Modifier.width(350.dp),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         PhotoSelector(onClickAddImage = {
-                            openDialog.value = true
+                            openPhotoDialog.value = true
                         })
-                        if (imageUriState != null) { // current running as infinite loop if imageURI state is not null
+                        if (imageUriState != null) {
                             val source = ImageDecoder
                                 .createSource(
                                     LocalContext.current.contentResolver,
@@ -260,7 +299,8 @@ class EntryDetailedScreen {
                         }
                     }
                     Spacer(modifier = Modifier.padding(0.dp, 10.dp))
-                } else if (newImage != null || image != null) {
+                }
+                image != null -> {
                     Row(
                         modifier = Modifier.width(350.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -274,236 +314,236 @@ class EntryDetailedScreen {
                                 .height(100.dp)
                         )
                         {
-                            if (image != null && noNewSaved) {
-                                Image(bitmap = image!!.asImageBitmap(), contentDescription = "")
-                            } else {
-                                Image(bitmap = newImage!!.asImageBitmap(), contentDescription = "")
-                            }
+                            Image(bitmap = image.asImageBitmap(), contentDescription = "")
                         }
                     }
                     Spacer(modifier = Modifier.padding(0.dp, 10.dp))
-                } else {
+                }
+                else -> {
                     DisplayDueDate(dueDate)
                     Spacer(modifier = Modifier.padding(0.dp, 10.dp))
                 }
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    if (!enabledChangeTitle) {
-                        Box(
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (!enabledChangeTitle) {
+                    Box(
+                        modifier = Modifier
+                            .width(350.dp)
+                            .sizeIn(minHeight = 70.dp, maxHeight = 100.dp)
+                            .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = titleTextState,
+                            fontSize = 20.sp,
+                            color = WhiteTextColor,
                             modifier = Modifier
-                                .width(350.dp)
-                                .sizeIn(minHeight = 70.dp, maxHeight = 100.dp)
-                                .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = titleTextState,
-                                fontSize = 20.sp,
-                                color = WhiteTextColor,
-                                modifier = Modifier
-                                    .padding(vertical = 10.dp, horizontal = 5.dp)
-                                    .verticalScroll(scrollTitle),
-                                textAlign = TextAlign.Start,
-                                fontFamily = josefinsans,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        Spacer(modifier = Modifier.padding(0.dp, 10.dp))
-                        Box(
+                                .padding(vertical = 10.dp, horizontal = 5.dp)
+                                .verticalScroll(scrollTitle),
+                            textAlign = TextAlign.Start,
+                            fontFamily = josefinsans,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+                    Box(
+                        modifier = Modifier
+                            .width(350.dp)
+                            .sizeIn(minHeight = 360.dp, maxHeight = 380.dp)
+                            .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        Text(
+                            text = if (todoDescriptionState.isEmpty()) {
+                                addDesc
+                            } else {
+                                todoDescriptionState
+                            },
+                            fontSize = 20.sp,
+                            color = if (todoDescriptionState.isEmpty()) {
+                                WhiteTextColorFade
+                            } else {
+                                WhiteTextColor
+                            },
                             modifier = Modifier
-                                .width(350.dp)
-                                .sizeIn(minHeight = 360.dp, maxHeight = 380.dp)
-                                .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
-                            contentAlignment = Alignment.TopCenter
-                        ) {
+                                .padding(vertical = 10.dp, horizontal = 10.dp)
+                                .verticalScroll(scrollDescription),
+                            textAlign = TextAlign.Center,
+                            fontFamily = josefinsans,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                } else {
+                    OutlinedTextField(
+                        value = titleTextState,
+                        onValueChange =
+                        {
+                            titleTextState = it
+                            titleNotEmpty = titleTextState.isNotEmpty()
+                        },
+                        shape = RoundedCornerShape(20.dp),
+                        modifier = Modifier
+                            .width(350.dp)
+                            .sizeIn(minHeight = 70.dp, maxHeight = 120.dp)
+                            .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
+                        placeholder = {
                             Text(
-                                text = if (todoDescriptionState.isEmpty()) {
-                                    addDesc
-                                } else {
-                                    todoDescriptionState
-                                },
-                                fontSize = 20.sp,
-                                color = if (todoDescriptionState.isEmpty()) {
-                                    WhiteTextColorFade
-                                } else {
-                                    WhiteTextColor
-                                },
-                                modifier = Modifier
-                                    .padding(vertical = 10.dp, horizontal = 10.dp)
-                                    .verticalScroll(scrollDescription),
+                                text = stringResource(id = R.string.new_itemTitle),
+                                color = WhiteTextColorFade,
                                 textAlign = TextAlign.Center,
-                                fontFamily = josefinsans,
-                                fontWeight = FontWeight.Bold
+                                fontFamily = dmSans,
+                                fontWeight = FontWeight.Bold,
                             )
-                        }
-                    } else {
-                        OutlinedTextField(
-                            value = titleTextState,
-                            onValueChange =
-                            {
-                                titleTextState = it
-                                titleNotEmpty = titleTextState.isNotEmpty()
-                            },
-                            shape = RoundedCornerShape(20.dp),
-                            modifier = Modifier
-                                .width(350.dp)
-                                .sizeIn(minHeight = 70.dp, maxHeight = 120.dp)
-                                .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
-                            placeholder = {
-                                Text(
-                                    text = stringResource(id = R.string.new_itemTitle),
-                                    color = WhiteTextColorFade,
-                                    textAlign = TextAlign.Center,
-                                    fontFamily = dmSans,
-                                    fontWeight = FontWeight.Bold,
-                                )
-                            },
-                            textStyle = TextStyle(
-                                fontSize = 15.sp,
-                                color = WhiteTextColor,
-                                fontFamily = josefinsans,
-                                fontWeight = FontWeight.Bold
-                            ),
-                            singleLine = false,
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                            colors = TextFieldDefaults.textFieldColors(textColor = WhiteTextColor),
-                        )
-                        Spacer(modifier = Modifier.padding(0.dp, 10.dp))
-                        OutlinedTextField(
-                            value = todoDescriptionState,
-                            onValueChange =
-                            {
-                                todoDescriptionState = it
-                            },
-                            shape = RoundedCornerShape(20.dp),
-                            modifier = Modifier
-                                .width(350.dp)
-                                .sizeIn(minHeight = 360.dp, maxHeight = 380.dp)
-                                .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
-                            placeholder = {
-                                Text(
-                                    text = stringResource(id = R.string.add_description_toTodo),
-                                    color = WhiteTextColorFade,
-                                    textAlign = TextAlign.Start,
-                                    fontFamily = dmSans,
-                                    fontWeight = FontWeight.Bold,
-                                )
-                            },
-                            textStyle = TextStyle(
-                                fontSize = 15.sp,
-                                color = WhiteTextColor,
-                                fontFamily = josefinsans,
-                                fontWeight = FontWeight.Bold
-                            ),
-                            singleLine = false,
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                            colors = TextFieldDefaults.textFieldColors(textColor = WhiteTextColor),
-                        )
-                    }
-                    Spacer(modifier = Modifier.padding(vertical = 15.dp))
-                    if (!enabledChangeTitle) {
-                        DeleteItemButton(clickDelete = { clickDelete() })
-                    }
+                        },
+                        textStyle = TextStyle(
+                            fontSize = 15.sp,
+                            color = WhiteTextColor,
+                            fontFamily = josefinsans,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        singleLine = false,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                        colors = TextFieldDefaults.textFieldColors(textColor = WhiteTextColor),
+                    )
+                    Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+                    OutlinedTextField(
+                        value = todoDescriptionState,
+                        onValueChange =
+                        {
+                            todoDescriptionState = it
+                        },
+                        shape = RoundedCornerShape(20.dp),
+                        modifier = Modifier
+                            .width(350.dp)
+                            .sizeIn(minHeight = 360.dp, maxHeight = 380.dp)
+                            .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
+                        placeholder = {
+                            Text(
+                                text = stringResource(id = R.string.add_description_toTodo),
+                                color = WhiteTextColorFade,
+                                textAlign = TextAlign.Center,
+                                fontFamily = dmSans,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        },
+                        textStyle = TextStyle(
+                            fontSize = 15.sp,
+                            color = WhiteTextColor,
+                            fontFamily = josefinsans,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        ),
+                        singleLine = false,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                        colors = TextFieldDefaults.textFieldColors(textColor = WhiteTextColor),
+                    )
+                }
+                Spacer(modifier = Modifier.padding(vertical = 15.dp))
+                if (!enabledChangeTitle) {
+                    DeleteItemButton(clickDelete = { openDeleteDialog.value = true })
                 }
             }
         }
     }
+}
 
-    @Composable
-    fun DisplayDueDate(dueDate: String) {
+@Composable
+fun DisplayDueDate(dueDate: String) {
 
-        Text(
-            modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
-                .background(Color.White)
-                .padding(10.dp),
-            text = formatDateString(dueDate),
-            fontSize = 15.sp,
-            color = BlackTextColor,
-            fontFamily = josefinsans,
-            fontWeight = FontWeight.Bold
-        )
+    Text(
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color.White)
+            .padding(10.dp),
+        text = formatDateString(dueDate),
+        fontSize = 15.sp,
+        color = BlackTextColor,
+        fontFamily = josefinsans,
+        fontWeight = FontWeight.Bold
+    )
 
-    }
+}
 
-    @Composable
-    fun PhotoSelector(onClickAddImage: () -> Unit) {
-        val camera = stringResource(R.string.camera_icon)
-        val addPhoto = stringResource(R.string.add_photo)
-        Box(
-            modifier = Modifier
-                .shadow(20.dp, RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp))
-                .background(Color.White)
-                .clickable { onClickAddImage() },
-            contentAlignment = Alignment.Center
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp)
-            ) {
-                Icon(
-                    Icons.Rounded.CameraAlt,
-                    contentDescription = null,
-                    tint = BlackTextColor,
-                    modifier = Modifier.semantics { testTag = camera })
-                PaddingValues(10.dp, 0.dp)
-                Text(
-                    text = addPhoto,
-                    color = BlackTextColor,
-                    fontFamily = dmSans,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
-
-    @Composable
-    fun DeleteItemButton(
-        clickDelete: () -> Unit,
+@Composable
+fun PhotoSelector(onClickAddImage: () -> Unit) {
+    val camera = stringResource(R.string.camera_icon)
+    val addPhoto = stringResource(R.string.add_photo)
+    Box(
+        modifier = Modifier
+            .shadow(20.dp, RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp))
+            .background(Color.White)
+            .clickable { onClickAddImage() },
+        contentAlignment = Alignment.Center
     ) {
-        val trashIcon = stringResource(R.string.delete_forever)
-        Box(
-            modifier = Modifier
-                .shadow(20.dp, RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp))
-                .background(Color.Red)
-                .clickable { clickDelete() },
-            contentAlignment = Alignment.Center
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp)
-            ) {
-                Icon(
-                    Icons.Rounded.DeleteForever,
-                    contentDescription = null,
-                    tint = WhiteTextColor,
-                    modifier = Modifier.semantics { testTag = trashIcon })
-                PaddingValues(10.dp, 0.dp)
-                Text(
-                    text = stringResource(id = R.string.delete),
-                    color = WhiteTextColor,
-                    fontFamily = dmSans,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            Icon(
+                Icons.Rounded.CameraAlt,
+                contentDescription = null,
+                tint = BlackTextColor,
+                modifier = Modifier.semantics { testTag = camera })
+            PaddingValues(10.dp, 0.dp)
+            Text(
+                text = addPhoto,
+                color = BlackTextColor,
+                fontFamily = dmSans,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
-    }
-
-    private fun createImageFile(): File {
-        val storageDir = MainActivity.applicationContext().cacheDir
-        val file = File.createTempFile("temp", ".jpg", storageDir)
-        file.deleteOnExit()
-        return file
     }
 }
+
+@Composable
+fun DeleteItemButton(
+    clickDelete: () -> Unit,
+) {
+    val trashIcon = stringResource(R.string.delete_forever)
+    Box(
+        modifier = Modifier
+            .shadow(20.dp, RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp))
+            .background(Color.Red)
+            .clickable { clickDelete() },
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp)
+        ) {
+            Icon(
+                Icons.Rounded.DeleteForever,
+                contentDescription = null,
+                tint = WhiteTextColor,
+                modifier = Modifier.semantics { testTag = trashIcon })
+            PaddingValues(10.dp, 0.dp)
+            Text(
+                text = stringResource(id = R.string.delete),
+                color = WhiteTextColor,
+                fontFamily = dmSans,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+private fun createImageFile(): File {
+    val folder = MainActivity.applicationContext().cacheDir
+    val newFile = File("${MainActivity.applicationContext().cacheDir}/temp.jpg")
+    newFile.createNewFile()
+    val file: File? = folder.listFiles().find { it.name == "temp.jpg" }
+    return file!!
+}
+
 
 fun formatDateString(
     dateString: String
@@ -511,7 +551,6 @@ fun formatDateString(
     if (dateString == "") {
         return ""
     }
-
     val dueDate = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(dateString)
     val month = dueDate.month
     val year = (dueDate.year + 1900) % 100

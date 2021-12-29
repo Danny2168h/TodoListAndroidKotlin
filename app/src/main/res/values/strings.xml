@@ -47,4 +47,6 @@
     <string name="choose_photo_opt">Choose an option to get your photo</string>
     <string name="from_camera">Camera</string>
     <string name="from_library">Library</string>
+    <string name="confirm_delete_item">Confirm Deletion Of Todo Item</string>
+    <string name="delete_todoItem">This todo item will be deleted forever do you confirm?</string>
 </resources>

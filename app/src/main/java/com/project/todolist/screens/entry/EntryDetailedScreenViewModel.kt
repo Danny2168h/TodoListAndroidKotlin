@@ -70,6 +70,8 @@ class EntryDetailedScreenViewModel(
                                 .openFileInput("${todoItem.value.uniqueID}.jpeg").readBytes()
                             val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                             todoImage.value = bmp
+                        } else {
+                            todoImage.value = null
                         }
                     }
                 }
@@ -79,6 +81,22 @@ class EntryDetailedScreenViewModel(
 
     fun clickSave(title: String, description: String, image: Bitmap?) =
         viewModelScope.launch(dispatcher) {
+            if (image != null) {
+                try {
+                    MainActivity.applicationContext()
+                        .openFileOutput("${todoItem.value.uniqueID}.jpeg", Context.MODE_PRIVATE)
+                        .use { stream ->
+                            if (!image.compress(Bitmap.CompressFormat.JPEG, 100, stream)) {
+                                throw IOException("Image Cannot be Saved")
+                            }
+                        }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            } else if (image == null && todoItem.value.imagePath != null) {
+                MainActivity.applicationContext().deleteFile(todoItem.value.imagePath)
+            }
+
             todoRepo.updateTodoItem(
                 listID = listID,
                 updatedItem = todoItem.value.copy(
@@ -95,22 +113,7 @@ class EntryDetailedScreenViewModel(
                     }
                 )
             )
-
-            if (image != null) {
-                try {
-                    MainActivity.applicationContext()
-                        .openFileOutput("${todoItem.value.uniqueID}.jpeg", Context.MODE_PRIVATE)
-                        .use { stream ->
-                            if (!image.compress(Bitmap.CompressFormat.JPEG, 100, stream)) {
-                                throw IOException("Image Cannot be Saved")
-                            }
-                        }
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
-            }
         }
-
 
     fun clickReturn() {
         navController.popBackStack()

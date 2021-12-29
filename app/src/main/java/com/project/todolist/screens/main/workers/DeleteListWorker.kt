@@ -6,7 +6,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.project.todolist.Graph
 
-class DeleteImageWorker(appContext: Context, workerParams: WorkerParameters) :
+class DeleteListWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result {
         Graph.provide(this.applicationContext)
