@@ -65,7 +65,7 @@ class CompletedScreenViewModel(private val navController: NavController) : ViewM
     }
 
     fun tapCompletedItem() {
-        TODO("Not yet implemented")
+        //doNothing
     }
 
     data class CompletedScreenViewModelState(

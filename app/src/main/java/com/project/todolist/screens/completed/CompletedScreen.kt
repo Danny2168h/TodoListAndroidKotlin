@@ -11,9 +11,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.ArrowForwardIos
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,7 +37,7 @@ fun CompletedScreen(viewModel: CompletedScreenViewModel) {
         completedItems = state.completedTodoItems,
         count = state.count,
         tapBack = { viewModel.tapBack() },
-        tapCompletedItem = { viewModel.tapCompletedItem() }
+        tapCompletedItem = { /* do nothing */ }
     )
 }
 
@@ -134,10 +134,6 @@ fun TitleArea(
     count: Int
 ) {
     val goBack = stringResource(R.string.go_back)
-    val delete = stringResource(R.string.delete)
-    val checkSave = stringResource(R.string.check_save)
-
-    var enabledDeleteLists by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(bottomEnd = 20.dp, bottomStart = 20.dp))
@@ -167,31 +163,8 @@ fun TitleArea(
                     textAlign = TextAlign.Center,
                     modifier = Modifier.width(250.dp)
                 )
-                if (enabledDeleteLists) {
-                    Icon(
-                        Icons.Rounded.Check,
-                        contentDescription = null,
-                        tint = WhiteBackground,
-                        modifier = Modifier
-                            .size(22.dp)
-                            .semantics { testTag = checkSave }
-                            .clickable {
-                                enabledDeleteLists = false
-                            })
-                } else {
-                    Icon(
-                        Icons.Rounded.Delete,
-                        contentDescription = null,
-                        tint = WhiteBackground,
-                        modifier = Modifier
-                            .size(22.dp)
-                            .semantics { testTag = delete }
-                            .clickable {
-                                enabledDeleteLists = true
-                            })
-                }
+                Spacer(modifier = Modifier.padding(11.dp))
             }
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -213,7 +186,6 @@ fun TitleArea(
                     fontSize = 18.sp,
                     fontFamily = dmSans
                 )
-
             }
         }
     }
