@@ -1,6 +1,5 @@
 package com.project.todolist.model.database
 
-import com.project.todolist.MainActivity
 import com.project.todolist.model.TodoItem
 import com.project.todolist.model.TodoList
 

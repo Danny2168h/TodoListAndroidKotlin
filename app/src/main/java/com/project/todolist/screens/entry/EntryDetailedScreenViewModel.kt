@@ -15,7 +15,6 @@ import com.project.todolist.model.TodoItem
 import com.project.todolist.model.TodoList
 import com.project.todolist.model.database.TodoListRepository
 import com.project.todolist.screens.entry.workers.DeleteItemWorker
-import com.project.todolist.screens.todolist.ListDetailedScreenViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,9 +48,9 @@ class EntryDetailedScreenViewModel(
 
     private fun viewStateUpdater() {
         viewModelScope.launch(dispatcher) {
-            combine(todoImage, todoDueDate) {
-                image, date -> EntryDetailedScreenState(image, date)
-            } .collect {
+            combine(todoImage, todoDueDate) { image, date ->
+                EntryDetailedScreenState(image, date)
+            }.collect {
                 _state.value = it
             }
         }
@@ -71,6 +70,8 @@ class EntryDetailedScreenViewModel(
                                 .openFileInput("${todoItem.value.uniqueID}.jpeg").readBytes()
                             val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                             todoImage.value = bmp
+                        } else {
+                            todoImage.value = null
                         }
                     }
                 }
@@ -80,19 +81,6 @@ class EntryDetailedScreenViewModel(
 
     fun clickSave(title: String, description: String, image: Bitmap?) =
         viewModelScope.launch(dispatcher) {
-            todoRepo.updateTodoItem(
-                listID = listID,
-                updatedItem = todoItem.value.copy(
-                    title = title,
-                    description = if (description.isEmpty()) {
-                        " "
-                    } else {
-                        description
-                    },
-                    imagePath = if (image != null) {"${todoItem.value.uniqueID}.jpeg"} else {null}
-                )
-            )
-
             if (image != null) {
                 try {
                     MainActivity.applicationContext()
@@ -105,9 +93,27 @@ class EntryDetailedScreenViewModel(
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
+            } else if (image == null && todoItem.value.imagePath != null) {
+                MainActivity.applicationContext().deleteFile(todoItem.value.imagePath)
             }
-        }
 
+            todoRepo.updateTodoItem(
+                listID = listID,
+                updatedItem = todoItem.value.copy(
+                    title = title,
+                    description = if (description.isEmpty()) {
+                        " "
+                    } else {
+                        description
+                    },
+                    imagePath = if (image != null) {
+                        "${todoItem.value.uniqueID}.jpeg"
+                    } else {
+                        null
+                    }
+                )
+            )
+        }
 
     fun clickReturn() {
         navController.popBackStack()
