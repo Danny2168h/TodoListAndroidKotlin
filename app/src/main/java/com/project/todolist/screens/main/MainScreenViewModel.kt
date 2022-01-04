@@ -53,7 +53,7 @@ class MainScreenViewModel(
     }
 
     fun onTapSave(title: String) = viewModelScope.launch {
-        todoListRepository.addTodoList(TodoList(title.trim()))
+        todoListRepository.addTodoList(TodoList(title = title.trim()))
     }
 
     fun onTapDelete(id: Long) = viewModelScope.launch(dispatcher) {
@@ -62,7 +62,6 @@ class MainScreenViewModel(
         val worker = OneTimeWorkRequestBuilder<DeleteListWorker>()
         worker.setInputData(data.build())
         workManager.enqueue(worker.build())
-        //todoListRepository.deleteTodoList(id)
     }
 
     data class MainScreenViewState(

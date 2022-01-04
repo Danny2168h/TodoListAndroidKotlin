@@ -3,7 +3,6 @@ package com.project.todolist.model
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import java.util.*
-
 import com.google.gson.reflect.TypeToken as TypeToken1
 
 class Converters {

@@ -11,6 +11,7 @@ import androidx.work.WorkManager
 import com.google.common.util.concurrent.ListenableFuture
 import com.project.todolist.Graph
 import com.project.todolist.MainActivity
+import com.project.todolist.R
 import com.project.todolist.model.TodoItem
 import com.project.todolist.model.TodoList
 import com.project.todolist.model.database.TodoListRepository
@@ -90,9 +91,9 @@ class ListDetailedScreenViewModel(
 
             val workManager = WorkManager.getInstance(MainActivity.applicationContext())
             val data = Data.Builder()
-            data.putLong("LIST_ID", id)
-            data.putString("ITEM_ID", item.uniqueID)
-            data.putString("DUE_DATE", itemDueTime)
+            data.putLong(MainActivity.applicationContext().getString(R.string.listID), id)
+            data.putString(MainActivity.applicationContext().getString(R.string.itemID), item.uniqueID)
+            data.putString(MainActivity.applicationContext().getString(R.string.dueDate), itemDueTime)
 
             val worker = OneTimeWorkRequestBuilder<NotificationWorker>()
             worker.setInitialDelay(difference, TimeUnit.SECONDS)
@@ -131,9 +132,9 @@ class ListDetailedScreenViewModel(
         } else {
             workManager.cancelAllWorkByTag(uniqueID)
             val data = Data.Builder()
-            data.putLong("LIST_ID", id)
-            data.putString("ITEM_ID", uniqueID)
-            data.putString("NOTIF_ID", notificationID)
+            data.putLong(MainActivity.applicationContext().getString(R.string.listID), id)
+            data.putString(MainActivity.applicationContext().getString(R.string.itemID), uniqueID)
+            data.putString(MainActivity.applicationContext().getString(R.string.notifID), notificationID)
             val worker = OneTimeWorkRequestBuilder<MoveToCompletedWorker>()
             worker.setInitialDelay(60, TimeUnit.SECONDS)
             worker.setInputData(data.build())
