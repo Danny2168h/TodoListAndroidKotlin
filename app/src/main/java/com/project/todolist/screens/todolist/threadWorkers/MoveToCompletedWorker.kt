@@ -5,16 +5,17 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.project.todolist.Graph
+import com.project.todolist.R
 
 class MoveToCompletedWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result {
         Graph.provide(this.applicationContext)
         val workManager = WorkManager.getInstance(this.applicationContext)
-        workManager.cancelAllWorkByTag(inputData.getString("NOTIF_ID")!!)
+        workManager.cancelAllWorkByTag(inputData.getString(this.applicationContext.getString(R.string.notifID))!!)
         Graph.todoRepo.moveTodoItemToCompleted(
-            inputData.getLong("LIST_ID", -1),
-            inputData.getString("ITEM_ID")
+            inputData.getLong(this.applicationContext.getString(R.string.listID), -1),
+            inputData.getString(this.applicationContext.getString(R.string.itemID))
         )
         return Result.success()
     }

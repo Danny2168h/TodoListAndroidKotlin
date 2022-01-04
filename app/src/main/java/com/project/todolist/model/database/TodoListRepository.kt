@@ -54,16 +54,15 @@ class TodoListRepository(private val todoListDao: TodoListDao) {
     }
 
     private fun updateTodoItem(todoList: List<TodoItem>, updatedItem: TodoItem): List<TodoItem> {
+        var newList = mutableListOf<TodoItem>()
         for (todoItem in todoList) {
             if (todoItem.uniqueID == updatedItem.uniqueID) {
-                todoItem.description = updatedItem.description
-                todoItem.markedForCompletion = updatedItem.markedForCompletion
-                todoItem.title = updatedItem.title
-                todoItem.imagePath = updatedItem.imagePath
-                todoItem.dueDate = updatedItem.dueDate
+                newList.add(updatedItem)
+            } else {
+                newList.add(todoItem)
             }
         }
-        return todoList
+        return newList
     }
 
 }

@@ -49,4 +49,9 @@
     <string name="from_library">Library</string>
     <string name="confirm_delete_item">Confirm Deletion Of Todo Item</string>
     <string name="delete_todoItem">This todo item will be deleted forever do you confirm?</string>
+    <string name="listID">LIST_ID</string>
+    <string name="itemID">ITEM_ID</string>
+    <string name="dueDate">DUE_DATE</string>
+    <string name="notifID">NOTIF_ID</string>
+    <string name="TodoItemhasExpired">Your Todo item has expired!</string>
 </resources>

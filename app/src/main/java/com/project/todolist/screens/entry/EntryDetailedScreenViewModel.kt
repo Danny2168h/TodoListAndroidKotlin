@@ -61,10 +61,10 @@ class EntryDetailedScreenViewModel(
             todoLists.collect { todoLists ->
                 val todoList: TodoList? = todoLists.find { it.id == listID }
                 if (todoList != null) {
-                    val foundItem: TodoItem? = todoList!!.todoItems.find { it.uniqueID == itemID }
-                    if (foundItem != null) {
-                        todoItem.value = foundItem!!
-                        todoDueDate.value = foundItem!!.dueDate
+                    val foundItem: TodoItem? = todoList.todoItems.find { it.uniqueID == itemID }
+                    foundItem?.let {
+                        todoItem.value = it
+                        todoDueDate.value = it.dueDate
                         if (todoItem.value.imagePath != null) {
                             val bytes = MainActivity.applicationContext()
                                 .openFileInput("${todoItem.value.uniqueID}.jpeg").readBytes()
@@ -73,7 +73,9 @@ class EntryDetailedScreenViewModel(
                         } else {
                             todoImage.value = null
                         }
+
                     }
+
                 }
             }
         }
