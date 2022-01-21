@@ -371,8 +371,8 @@ fun AddListButton(
                         if (isCollapsed) expand() else collapse()
                     }
                 }
-            }.semantics { testTag = addIcon }
-        , contentAlignment = Alignment.Center
+            }
+            .semantics { testTag = addIcon }, contentAlignment = Alignment.Center
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(

@@ -92,8 +92,14 @@ class ListDetailedScreenViewModel(
             val workManager = WorkManager.getInstance(MainActivity.applicationContext())
             val data = Data.Builder()
             data.putLong(MainActivity.applicationContext().getString(R.string.listID), id)
-            data.putString(MainActivity.applicationContext().getString(R.string.itemID), item.uniqueID)
-            data.putString(MainActivity.applicationContext().getString(R.string.dueDate), itemDueTime)
+            data.putString(
+                MainActivity.applicationContext().getString(R.string.itemID),
+                item.uniqueID
+            )
+            data.putString(
+                MainActivity.applicationContext().getString(R.string.dueDate),
+                itemDueTime
+            )
 
             val worker = OneTimeWorkRequestBuilder<NotificationWorker>()
             worker.setInitialDelay(difference, TimeUnit.SECONDS)
@@ -134,7 +140,10 @@ class ListDetailedScreenViewModel(
             val data = Data.Builder()
             data.putLong(MainActivity.applicationContext().getString(R.string.listID), id)
             data.putString(MainActivity.applicationContext().getString(R.string.itemID), uniqueID)
-            data.putString(MainActivity.applicationContext().getString(R.string.notifID), notificationID)
+            data.putString(
+                MainActivity.applicationContext().getString(R.string.notifID),
+                notificationID
+            )
             val worker = OneTimeWorkRequestBuilder<MoveToCompletedWorker>()
             worker.setInitialDelay(60, TimeUnit.SECONDS)
             worker.setInputData(data.build())

@@ -493,10 +493,18 @@ fun TopInfoArea(
     var previousTextState by remember { mutableStateOf(todoTitle) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 20.dp, end = 20.dp)
+    ) {
         Spacer(modifier = Modifier.padding(0.dp, 20.dp))
         Box(
-            modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth().padding(start = 20.dp, end = 20.dp)
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp)
         ) {
             if (!enabledChangeTitle) {
                 Icon(Icons.Rounded.Home,
@@ -561,7 +569,7 @@ fun TopInfoArea(
         if (!enabledChangeTitle) {
             Box(
                 modifier = Modifier
-                    .width(350.dp)
+                    .fillMaxWidth()
                     .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                 contentAlignment = Alignment.BottomCenter
             ) {
@@ -586,7 +594,7 @@ fun TopInfoArea(
                 },
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
-                    .width(350.dp)
+                    .fillMaxWidth()
                     .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                 placeholder = {
                     Text(

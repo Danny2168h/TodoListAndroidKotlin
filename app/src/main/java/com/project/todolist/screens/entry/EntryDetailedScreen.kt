@@ -192,12 +192,17 @@ fun EntryDetailedScreenMain(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .background(ListDetailedViewBackGround),
+                .background(ListDetailedViewBackGround)
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.padding(0.dp, 20.dp))
             Box(
-                modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth().padding(start = 20.dp, end = 20.dp)
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp)
             ) {
                 if (!enabledChangeTitle) {
                     Icon(
@@ -207,7 +212,9 @@ fun EntryDetailedScreenMain(
                         modifier = Modifier
                             .size(22.dp)
                             .semantics { testTag = back }
-                            .clickable { clickReturn() }.align(Alignment.CenterStart))
+                            .clickable { clickReturn() }
+                            .align(Alignment.CenterStart)
+                    )
                 } else {
                     Icon(
                         Icons.Rounded.Clear,
@@ -272,7 +279,7 @@ fun EntryDetailedScreenMain(
             when {
                 enabledChangeTitle -> {
                     Row(
-                        modifier = Modifier.width(350.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -304,7 +311,7 @@ fun EntryDetailedScreenMain(
                 }
                 image != null -> {
                     Row(
-                        modifier = Modifier.width(350.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
@@ -335,7 +342,7 @@ fun EntryDetailedScreenMain(
                 if (!enabledChangeTitle) {
                     Box(
                         modifier = Modifier
-                            .width(350.dp)
+                            .fillMaxWidth()
                             .sizeIn(minHeight = 70.dp, maxHeight = 100.dp)
                             .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                         contentAlignment = Alignment.Center
@@ -355,7 +362,7 @@ fun EntryDetailedScreenMain(
                     Spacer(modifier = Modifier.padding(0.dp, 10.dp))
                     Box(
                         modifier = Modifier
-                            .width(350.dp)
+                            .fillMaxWidth()
                             .sizeIn(minHeight = 360.dp, maxHeight = 380.dp)
                             .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                         contentAlignment = Alignment.TopCenter
@@ -390,7 +397,7 @@ fun EntryDetailedScreenMain(
                         },
                         shape = RoundedCornerShape(20.dp),
                         modifier = Modifier
-                            .width(350.dp)
+                            .fillMaxWidth()
                             .sizeIn(minHeight = 70.dp, maxHeight = 120.dp)
                             .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                         placeholder = {
@@ -422,7 +429,7 @@ fun EntryDetailedScreenMain(
                         },
                         shape = RoundedCornerShape(20.dp),
                         modifier = Modifier
-                            .width(350.dp)
+                            .fillMaxWidth()
                             .sizeIn(minHeight = 360.dp, maxHeight = 380.dp)
                             .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                         placeholder = {
