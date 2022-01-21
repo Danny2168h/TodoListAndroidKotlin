@@ -192,13 +192,17 @@ fun EntryDetailedScreenMain(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .background(ListDetailedViewBackGround),
+                .background(ListDetailedViewBackGround)
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.padding(0.dp, 20.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp)
             ) {
                 if (!enabledChangeTitle) {
                     Icon(
@@ -208,7 +212,9 @@ fun EntryDetailedScreenMain(
                         modifier = Modifier
                             .size(22.dp)
                             .semantics { testTag = back }
-                            .clickable { clickReturn() })
+                            .clickable { clickReturn() }
+                            .align(Alignment.CenterStart)
+                    )
                 } else {
                     Icon(
                         Icons.Rounded.Clear,
@@ -223,7 +229,8 @@ fun EntryDetailedScreenMain(
                                 enabledChangeTitle = false
                                 imageUriState = null
                                 tempImage = null
-                            })
+                            }
+                            .align(Alignment.CenterStart))
                 }
                 Text(
                     text = stringResource(id = R.string.todo_title),
@@ -232,7 +239,7 @@ fun EntryDetailedScreenMain(
                     fontFamily = montserrat,
                     fontWeight = FontWeight.ExtraBold,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.width(250.dp)
+                    modifier = Modifier.align(Alignment.Center)
                 )
                 if (enabledChangeTitle) {
                     Icon(
@@ -250,7 +257,8 @@ fun EntryDetailedScreenMain(
                                     tempImage = null
                                     imageUriState = null
                                 }
-                            })
+                            }
+                            .align(Alignment.CenterEnd))
                 } else {
                     Icon(
                         Icons.Rounded.Edit,
@@ -263,14 +271,15 @@ fun EntryDetailedScreenMain(
                                 previousTitleState = titleTextState
                                 previousDescriptionState = todoDescriptionState
                                 enabledChangeTitle = true
-                            })
+                            }
+                            .align(Alignment.CenterEnd))
                 }
             }
             Spacer(modifier = Modifier.padding(0.dp, 10.dp))
             when {
                 enabledChangeTitle -> {
                     Row(
-                        modifier = Modifier.width(350.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -302,7 +311,7 @@ fun EntryDetailedScreenMain(
                 }
                 image != null -> {
                     Row(
-                        modifier = Modifier.width(350.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
@@ -333,7 +342,7 @@ fun EntryDetailedScreenMain(
                 if (!enabledChangeTitle) {
                     Box(
                         modifier = Modifier
-                            .width(350.dp)
+                            .fillMaxWidth()
                             .sizeIn(minHeight = 70.dp, maxHeight = 100.dp)
                             .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                         contentAlignment = Alignment.Center
@@ -353,7 +362,7 @@ fun EntryDetailedScreenMain(
                     Spacer(modifier = Modifier.padding(0.dp, 10.dp))
                     Box(
                         modifier = Modifier
-                            .width(350.dp)
+                            .fillMaxWidth()
                             .sizeIn(minHeight = 360.dp, maxHeight = 380.dp)
                             .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                         contentAlignment = Alignment.TopCenter
@@ -388,7 +397,7 @@ fun EntryDetailedScreenMain(
                         },
                         shape = RoundedCornerShape(20.dp),
                         modifier = Modifier
-                            .width(350.dp)
+                            .fillMaxWidth()
                             .sizeIn(minHeight = 70.dp, maxHeight = 120.dp)
                             .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                         placeholder = {
@@ -420,7 +429,7 @@ fun EntryDetailedScreenMain(
                         },
                         shape = RoundedCornerShape(20.dp),
                         modifier = Modifier
-                            .width(350.dp)
+                            .fillMaxWidth()
                             .sizeIn(minHeight = 360.dp, maxHeight = 380.dp)
                             .border(2.dp, WhiteBackground, RoundedCornerShape(20.dp)),
                         placeholder = {

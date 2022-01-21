@@ -140,11 +140,18 @@ fun TitleArea(
             .fillMaxWidth()
             .background(DarkerBlue)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp)
+        ) {
             Spacer(modifier = Modifier.padding(0.dp, 20.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp)
             ) {
                 Icon(
                     Icons.Rounded.ArrowBackIosNew,
@@ -153,7 +160,8 @@ fun TitleArea(
                     modifier = Modifier
                         .size(22.dp)
                         .semantics { testTag = goBack }
-                        .clickable { tapBack() })
+                        .clickable { tapBack() }
+                        .align(Alignment.CenterStart))
                 Text(
                     text = stringResource(id = R.string.todo_title),
                     color = WhiteTextColor,
@@ -161,7 +169,7 @@ fun TitleArea(
                     fontFamily = montserrat,
                     fontWeight = FontWeight.ExtraBold,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.width(250.dp)
+                    modifier = Modifier.align(Alignment.Center)
                 )
                 Spacer(modifier = Modifier.padding(11.dp))
             }
