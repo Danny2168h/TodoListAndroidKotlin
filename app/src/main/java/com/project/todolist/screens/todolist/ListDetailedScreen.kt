@@ -495,9 +495,8 @@ fun TopInfoArea(
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(modifier = Modifier.padding(0.dp, 20.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+        Box(
+            modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth().padding(start = 20.dp, end = 20.dp)
         ) {
             if (!enabledChangeTitle) {
                 Icon(Icons.Rounded.Home,
@@ -506,7 +505,8 @@ fun TopInfoArea(
                     modifier = Modifier
                         .size(22.dp)
                         .semantics { testTag = home }
-                        .clickable { clickMainMenu() })
+                        .clickable { clickMainMenu() }
+                        .align(Alignment.CenterStart))
             } else {
                 Icon(Icons.Rounded.Clear,
                     contentDescription = null,
@@ -517,7 +517,8 @@ fun TopInfoArea(
                         .clickable {
                             textState = previousTextState
                             enabledChangeTitle = false
-                        })
+                        }
+                        .align(Alignment.CenterStart))
             }
             Text(
                 text = stringResource(id = R.string.todo_title),
@@ -526,7 +527,7 @@ fun TopInfoArea(
                 fontFamily = montserrat,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.width(250.dp)
+                modifier = Modifier.align(Alignment.Center)
             )
             if (enabledChangeTitle) {
                 Icon(Icons.Rounded.Check,
@@ -540,7 +541,8 @@ fun TopInfoArea(
                                 onClickCheckSave(textState)
                                 enabledChangeTitle = false
                             }
-                        })
+                        }
+                        .align(Alignment.CenterEnd))
             } else {
                 Icon(Icons.Rounded.Edit,
                     contentDescription = null,
@@ -551,7 +553,8 @@ fun TopInfoArea(
                         .clickable {
                             previousTextState = textState
                             enabledChangeTitle = true
-                        })
+                        }
+                        .align(Alignment.CenterEnd))
             }
         }
         Spacer(modifier = Modifier.padding(0.dp, 10.dp))
