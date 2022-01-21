@@ -32,7 +32,7 @@ class MainScreenTest {
             "Errands"
         )
         val testTodoLists = mutableListOf<TodoList>()
-        todoLists.forEach { testTodoLists.add(TodoList(it)) }
+        todoLists.forEach { testTodoLists.add(TodoList(title = it)) }
         composeTestRule.setContent {
             MainScreenMain(
                 todoLists = testTodoLists,

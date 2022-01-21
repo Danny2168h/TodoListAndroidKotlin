@@ -358,7 +358,7 @@ fun AddListButton(
     scaffoldState: BottomSheetScaffoldState,
     scope: CoroutineScope
 ) {
-    val addIcon = stringResource(R.string.delete_forever)
+    val addIcon = stringResource(R.string.add_icon)
     Box(
         modifier = Modifier
             .shadow(20.dp, RoundedCornerShape(20.dp, 20.dp, 20.dp, 20.dp))
@@ -371,14 +371,15 @@ fun AddListButton(
                         if (isCollapsed) expand() else collapse()
                     }
                 }
-            }, contentAlignment = Alignment.Center
+            }.semantics { testTag = addIcon }
+        , contentAlignment = Alignment.Center
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 Icons.Rounded.Add,
                 contentDescription = null,
-                tint = WhiteTextColor,
-                modifier = Modifier.semantics { testTag = addIcon })
+                tint = WhiteTextColor
+            )
             PaddingValues(10.dp, 0.dp)
             Text(
                 text = stringResource(id = R.string.list),
